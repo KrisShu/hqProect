@@ -1,10 +1,10 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import Vue from 'vue';
+import Router from 'vue-router';
 
-Vue.use(Router)
+Vue.use(Router);
 
 /* Layout */
-import Layout from '@/layout'
+import Layout from '@/layout';
 
 /**
  * Note: 路由配置项
@@ -28,156 +28,234 @@ import Layout from '@/layout'
   }
  */
 
+// import Customer from '@/views/customer/index';
+
 // 公共路由
 export const constantRoutes = [
-  {
-    path: '/redirect',
-    component: Layout,
-    hidden: true,
-    children: [
-      {
-        path: '/redirect/:path(.*)',
-        component: () => import('@/views/redirect')
-      }
-    ]
-  },
-  {
-    path: '/login',
-    component: () => import('@/views/login'),
-    hidden: true
-  },
-  {
-    path: '/register',
-    component: () => import('@/views/register'),
-    hidden: true
-  },
-  {
-    path: '/404',
-    component: () => import('@/views/error/404'),
-    hidden: true
-  },
-  {
-    path: '/401',
-    component: () => import('@/views/error/401'),
-    hidden: true
-  },
-  {
-    path: '',
-    component: Layout,
-    redirect: 'index',
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/index'),
-        name: 'Index',
-        meta: { title: '首页', icon: 'dashboard', affix: true }
-      }
-    ]
-  },
-  {
-    path: '/user',
-    component: Layout,
-    hidden: true,
-    redirect: 'noredirect',
-    children: [
-      {
-        path: 'profile',
-        component: () => import('@/views/system/user/profile/index'),
-        name: 'Profile',
-        meta: { title: '个人中心', icon: 'user' }
-      }
-    ]
-  }
-]
+    {
+        path: '/redirect',
+        component: Layout,
+        hidden: true,
+        children: [
+            {
+                path: '/redirect/:path(.*)',
+                component: () => import('@/views/redirect'),
+            },
+        ],
+    },
+    {
+        path: '/login',
+        component: () => import('@/views/login'),
+        hidden: true,
+    },
+    {
+        path: '/register',
+        component: () => import('@/views/register'),
+        hidden: true,
+    },
+    {
+        path: '/404',
+        component: () => import('@/views/error/404'),
+        hidden: true,
+    },
+    {
+        path: '/401',
+        component: () => import('@/views/error/401'),
+        hidden: true,
+    },
+    {
+        path: '',
+        component: Layout,
+        redirect: 'index',
+        children: [
+            {
+                path: 'index',
+                component: () => import('@/views/index'),
+                name: 'Index',
+                meta: { title: '首页', icon: 'dashboard', affix: true },
+            },
+        ],
+    },
+    {
+        path: '/user',
+        component: Layout,
+        hidden: true,
+        redirect: 'noredirect',
+        children: [
+            {
+                path: 'profile',
+                component: () => import('@/views/system/user/profile/index'),
+                name: 'Profile',
+                meta: { title: '个人中心', icon: 'user' },
+            },
+        ],
+    },
+    {
+        path: '/customer',
+        name: 'Customer',
+        component: Layout,
+        redirect: 'noredirect',
+        meta: { title: '客户管理', icon: 'user' },
+        children: [
+            {
+                hidden: false,
+                path: 'CustomerList',
+                component: () => import('@/views/customer/customerList'),
+                name: 'CustomerList',
+                meta: { title: '客户列表1', icon: 'user' },
+            },
+            {
+                hidden: false,
+                path: 'CustomerList',
+                component: () => import('@/views/customer/customerList'),
+                name: 'CustomerList',
+                meta: { title: '客户列表2', icon: 'user' },
+            },
+            {
+                hidden: true,
+                path: 'CustomerDetail',
+                component: () => import('@/views/customer/customerDetail'),
+                name: 'CustomerList',
+                meta: { title: '客户详情', icon: 'user' },
+            },
+        ],
+    },
+    {
+        path: '/mycustomer',
+        name: 'MyCustomer',
+        component: Layout,
+        redirect: 'noredirect',
+        meta: { title: '我的客户', icon: 'user' },
+        children: [
+            {
+                hidden: false,
+                path: 'IngList',
+                component: () => import('@/views/myCustomer/ingList'),
+                name: 'CustomerList',
+                meta: { title: '待完成', icon: 'user' },
+            },
+            {
+                hidden: false,
+                path: 'Edlist',
+                component: () => import('@/views/myCustomer/edlist'),
+                name: 'CustomerList',
+                meta: { title: '已完成', icon: 'user' },
+            },
+        ],
+    },
+    {
+        path: '/workPerformance',
+        name: 'WorkPerformance',
+        component: Layout,
+        redirect: 'noredirect',
+        meta: { title: '绩效', icon: 'user' },
+        children: [
+            {
+                hidden: false,
+                path: 'principal',
+                component: () => import('@/views/workPerformance/principal'),
+                name: 'Principal',
+                meta: { title: '负责人绩效', icon: 'user' },
+            },
+            {
+                hidden: false,
+                path: 'staff',
+                component: () => import('@/views/workPerformance/staff'),
+                name: 'Staff',
+                meta: { title: '业务员绩效', icon: 'user' },
+            },
+        ],
+    },
+];
 
 // 动态路由，基于用户权限动态去加载
 export const dynamicRoutes = [
-  {
-    path: '/system/user-auth',
-    component: Layout,
-    hidden: true,
-    permissions: ['system:user:edit'],
-    children: [
-      {
-        path: 'role/:userId(\\d+)',
-        component: () => import('@/views/system/user/authRole'),
-        name: 'AuthRole',
-        meta: { title: '分配角色', activeMenu: '/system/user' }
-      }
-    ]
-  },
-  {
-    path: '/system/role-auth',
-    component: Layout,
-    hidden: true,
-    permissions: ['system:role:edit'],
-    children: [
-      {
-        path: 'user/:roleId(\\d+)',
-        component: () => import('@/views/system/role/authUser'),
-        name: 'AuthUser',
-        meta: { title: '分配用户', activeMenu: '/system/role' }
-      }
-    ]
-  },
-  {
-    path: '/system/dict-data',
-    component: Layout,
-    hidden: true,
-    permissions: ['system:dict:list'],
-    children: [
-      {
-        path: 'index/:dictId(\\d+)',
-        component: () => import('@/views/system/dict/data'),
-        name: 'Data',
-        meta: { title: '字典数据', activeMenu: '/system/dict' }
-      }
-    ]
-  },
-  {
-    path: '/monitor/job-log',
-    component: Layout,
-    hidden: true,
-    permissions: ['monitor:job:list'],
-    children: [
-      {
-        path: 'index/:jobId(\\d+)',
-        component: () => import('@/views/monitor/job/log'),
-        name: 'JobLog',
-        meta: { title: '调度日志', activeMenu: '/monitor/job' }
-      }
-    ]
-  },
-  {
-    path: '/tool/gen-edit',
-    component: Layout,
-    hidden: true,
-    permissions: ['tool:gen:edit'],
-    children: [
-      {
-        path: 'index/:tableId(\\d+)',
-        component: () => import('@/views/tool/gen/editTable'),
-        name: 'GenEdit',
-        meta: { title: '修改生成配置', activeMenu: '/tool/gen' }
-      }
-    ]
-  }
-]
+    {
+        path: '/system/user-auth',
+        component: Layout,
+        hidden: true,
+        permissions: ['system:user:edit'],
+        children: [
+            {
+                path: 'role/:userId(\\d+)',
+                component: () => import('@/views/system/user/authRole'),
+                name: 'AuthRole',
+                meta: { title: '分配角色', activeMenu: '/system/user' },
+            },
+        ],
+    },
+    {
+        path: '/system/role-auth',
+        component: Layout,
+        hidden: true,
+        permissions: ['system:role:edit'],
+        children: [
+            {
+                path: 'user/:roleId(\\d+)',
+                component: () => import('@/views/system/role/authUser'),
+                name: 'AuthUser',
+                meta: { title: '分配用户', activeMenu: '/system/role' },
+            },
+        ],
+    },
+    {
+        path: '/system/dict-data',
+        component: Layout,
+        hidden: true,
+        permissions: ['system:dict:list'],
+        children: [
+            {
+                path: 'index/:dictId(\\d+)',
+                component: () => import('@/views/system/dict/data'),
+                name: 'Data',
+                meta: { title: '字典数据', activeMenu: '/system/dict' },
+            },
+        ],
+    },
+    {
+        path: '/monitor/job-log',
+        component: Layout,
+        hidden: true,
+        permissions: ['monitor:job:list'],
+        children: [
+            {
+                path: 'index/:jobId(\\d+)',
+                component: () => import('@/views/monitor/job/log'),
+                name: 'JobLog',
+                meta: { title: '调度日志', activeMenu: '/monitor/job' },
+            },
+        ],
+    },
+    {
+        path: '/tool/gen-edit',
+        component: Layout,
+        hidden: true,
+        permissions: ['tool:gen:edit'],
+        children: [
+            {
+                path: 'index/:tableId(\\d+)',
+                component: () => import('@/views/tool/gen/editTable'),
+                name: 'GenEdit',
+                meta: { title: '修改生成配置', activeMenu: '/tool/gen' },
+            },
+        ],
+    },
+];
 
 // 防止连续点击多次路由报错
 let routerPush = Router.prototype.push;
 let routerReplace = Router.prototype.replace;
 // push
 Router.prototype.push = function push(location) {
-  return routerPush.call(this, location).catch(err => err)
-}
+    return routerPush.call(this, location).catch(err => err);
+};
 // replace
 Router.prototype.replace = function push(location) {
-  return routerReplace.call(this, location).catch(err => err)
-}
+    return routerReplace.call(this, location).catch(err => err);
+};
 
 export default new Router({
-  mode: 'history', // 去掉url中的#
-  scrollBehavior: () => ({ y: 0 }),
-  routes: constantRoutes
-})
+    mode: 'history', // 去掉url中的#
+    scrollBehavior: () => ({ y: 0 }),
+    routes: constantRoutes,
+});
