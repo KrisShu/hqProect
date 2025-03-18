@@ -1,24 +1,25 @@
 <template>
     <div class="app-container">
         <!-- 查询条件 -->
+        {{ $store.getters.name }}
         <el-row class="search-box flex-wrap flex-hh mb20" v-show="showSearch">
             <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
                 <div class="label-box">
-                    <el-select v-model="queryParams.option1" @change="optionSelectChange('value1')">
-                        <el-option label="单号" :value="1"> </el-option>
-                        <el-option label="接单微信号" :value="2"> </el-option>
-                        <el-option label="客户概况" :value="3"> </el-option>
-                        <el-option label="接单员" :value="4"> </el-option>
+                    <el-select
+                        v-model="queryParams.option1"
+                        @change="
+                            e => {
+                                optionSelectChange(e, 'value1');
+                            }
+                        "
+                    >
+                        <el-option label="单号" value="orderNumber"> </el-option>
+                        <el-option label="接单微信号" value="sourceWx"> </el-option>
+                        <el-option label="客户概况" value="customerProfiling"> </el-option>
                     </el-select>
                 </div>
                 <div class="vlue-box">
-                    <el-input
-                        v-model="queryParams.value1"
-                        placeholder="请输入内容"
-                        clearable
-                        style="width: 240px"
-                        @keyup.enter.native="handleQuery"
-                    />
+                    <el-input v-model="queryParams.value1" placeholder="请输入内容" clearable style="width: 240px" />
                 </div>
             </el-col>
 
@@ -27,12 +28,17 @@
                     <div class="lael-input">业务员：</div>
                 </div>
                 <div class="vlue-box">
-                    <el-select v-model="queryParams.status" placeholder="请选择业务员" clearable style="width: 240px">
+                    <el-select
+                        v-model="queryParams.salesmanUserId"
+                        placeholder="请选择业务员"
+                        clearable
+                        style="width: 240px"
+                    >
                         <el-option
-                            v-for="dict in staffOptions"
-                            :key="dict.value"
-                            :label="dict.label"
-                            :value="dict.value"
+                            v-for="dict in $store.getters.salesmanUserList"
+                            :key="dict.userId"
+                            :label="dict.userName"
+                            :value="dict.userId"
                         />
                     </el-select>
                 </div>
@@ -42,12 +48,17 @@
                     <div class="lael-input">负责人：</div>
                 </div>
                 <div class="vlue-box">
-                    <el-select v-model="queryParams.status" placeholder="请选择负责人" clearable style="width: 240px">
+                    <el-select
+                        v-model="queryParams.principalUserId"
+                        placeholder="请选择负责人"
+                        clearable
+                        style="width: 240px"
+                    >
                         <el-option
-                            v-for="dict in staffOptions"
-                            :key="dict.value"
-                            :label="dict.label"
-                            :value="dict.value"
+                            v-for="dict in $store.getters.principalUserList"
+                            :key="dict.userId"
+                            :label="dict.userName"
+                            :value="dict.userId"
                         />
                     </el-select>
                 </div>
@@ -57,7 +68,7 @@
                     <div class="lael-input">状态：</div>
                 </div>
                 <div class="vlue-box">
-                    <el-select v-model="queryParams.status" placeholder="请选择状态" clearable style="width: 240px">
+                    <el-select v-model="queryParams.orderState" placeholder="请选择状态" clearable style="width: 240px">
                         <el-option
                             v-for="dict in statusOptions"
                             :key="dict.value"
@@ -70,9 +81,16 @@
 
             <el-row class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
                 <div class="label-box">
-                    <el-select v-model="queryParams.option3">
-                        <el-option label="下单日期" :value="1"> </el-option>
-                        <el-option label="交付日期" :value="2"> </el-option>
+                    <el-select
+                        v-model="queryParams.option3"
+                        @change="
+                            e => {
+                                optionSelectChange(e, 'value3');
+                            }
+                        "
+                    >
+                        <el-option label="下单日期" value="OrderTime"> </el-option>
+                        <el-option label="交付日期" value="ReleasedTime"> </el-option>
                     </el-select>
                 </div>
                 <div class="vlue-box">
@@ -419,11 +437,10 @@
                 queryParams: {
                     pageNum: 1,
                     pageSize: 10,
-                    option1: 1,
+                    option1: 'orderNumber',
                     value1: undefined,
-                    option2: 1,
-                    value2: undefined,
-                    option3: 1,
+
+                    option3: 'OrderTime',
                     value3: [],
                     status: undefined,
 
@@ -433,10 +450,13 @@
                     orderState: undefined, //状态
                     startOrderTime: undefined, //下单日期
                     endOrderTime: undefined, //下单日期
+                    OrderTime: [],
+                    principalUserId: undefined, //负责人
                     startReleasedTime: undefined, //交付日期
                     endReleasedTime: undefined, //交付日期
+                    ReleasedTime: [], //交付日期
                     sourceWx: undefined, //接单微信号
-                    salemanUserName: undefined, //业务员
+                    salesmanUserId: undefined, //业务员
 
                     // id: undefined,
                     // orderNumber: undefined,
@@ -526,15 +546,15 @@
         },
         created() {
             this.getList();
-            this.fetchsalesmanUserList();
+            // this.fetchsalesmanUserList();
         },
         methods: {
-            fetchsalesmanUserList() {
-                commApi.fetchprincipalUserList({ keyWord: '1' }).then(res => {
-                    console.log('res.data----------------获取系统元数据', res.data);
-                    // this.salesmanUserList = res.data;
-                });
-            },
+            // fetchsalesmanUserList() {
+            //     commApi.fetchprincipalUserList({ keyWord: undefined }).then(res => {
+            //         console.log('res.data----------------获取系统元数据', res.rows);
+            //         // this.salesmanUserList = res.data;
+            //     });
+            // },
             /** 查询角色列表 */
             getList() {
                 this.loading = true;
@@ -549,8 +569,9 @@
                     this.loading = false;
                 });
             },
-            optionSelectChange(key) {
-                this.queryParams[key] = undefined;
+            optionSelectChange(key, valueKey) {
+                console.log('key', key, valueKey);
+                this.queryParams[key] = this.queryParams[valueKey];
             },
 
             /** 搜索按钮操作 */

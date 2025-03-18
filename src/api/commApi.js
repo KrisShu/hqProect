@@ -1,27 +1,26 @@
 import request from '@/utils/request';
 
 // 获取业务元数据
-export function fetchsalesmanUserList(query) {
-    console.log('fetchsalesmanUserList=====', query);
+export function fetchsalesmanUserList(data) {
     return request({
         url: '/system/order/salesmanUserList',
-        method: 'get',
-        params: query,
-        headers: {
-            jsonGet: true, // 标记为 JSON 格式 GET 请求
-        },
+        method: 'post',
+        data: data,
     });
 }
 
-export function fetchprincipalUserList(query) {
-    console.log('fetchsalesmanUserList=====', query);
+export function fetchprincipalUserList(data) {
     return request({
         url: '/system/order/principalUserList',
+        method: 'post',
+        data: data,
+    });
+}
+// 获取元数据
+export function fetchDictType(query) {
+    return request({
+        url: `/system/dict/data/type/${query}`,
         method: 'get',
-        params: query,
-        headers: {
-            jsonGet: true, // 标记为 JSON 格式 GET 请求
-        },
     });
 }
 
@@ -36,4 +35,5 @@ export function fetchprincipalUserList(query) {
 export default {
     fetchsalesmanUserList,
     fetchprincipalUserList,
+    fetchDictType,
 };

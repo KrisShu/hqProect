@@ -1,5 +1,5 @@
 import { login, logout, getInfo } from '@/api/login';
-import { fetchsalesmanUserList } from '@/api/commApi';
+import { fetchsalesmanUserList, fetchprincipalUserList, fetchDictType } from '@/api/commApi';
 import { getToken, setToken, removeToken } from '@/utils/auth';
 import { isHttp, isEmpty } from '@/utils/validate';
 import defAva from '@/assets/images/profile.jpg';
@@ -13,6 +13,8 @@ const user = {
         roles: [],
         permissions: [],
         salesmanUserList: [], // 业务员元数据
+        principalUserList: [], // 负责人元数据
+        statusList: [], // 状态元数据
     },
 
     mutations: {
@@ -36,6 +38,12 @@ const user = {
         },
         SET_SALESMAN_USER_LIST: (state, salesmanUserList) => {
             state.salesmanUserList = salesmanUserList;
+        },
+        SET_PRINCIPAL_USER_LIST: (state, principalUserList) => {
+            state.principalUserList = principalUserList;
+        },
+        SET_STATUS_LIST: (state, statusList) => {
+            state.statusList = statusList;
         },
     },
 
@@ -89,11 +97,17 @@ const user = {
         // 获取系统元数据
         GetSysMetaList({ commit }) {
             return new Promise((resolve, reject) => {
-                fetchsalesmanUserList({ keyWord: '' })
-                    .then(res => {
-                        console.log('res.data----------------获取系统元数据', res.data);
-                        // commit('SET_SALESMAN_USER_LIST', res.data);
-                        resolve(res);
+                Promise.all([
+                    fetchsalesmanUserList({ keyWord: undefined }),
+                    fetchprincipalUserList({ keyWord: undefined }),
+                    fetchDictType('project_summary'),
+                ])
+                    .then(([salesmanUserList, principalUserList, statusList]) => {
+                        // console.log('salesmanUserList----------------', salesmanUserList);
+                        commit('SET_SALESMAN_USER_LIST', salesmanUserList.rows);
+                        commit('SET_PRINCIPAL_USER_LIST', principalUserList.rows);
+                        commit('SET_STATUS_LIST', statusList.data);
+                        resolve();
                     })
                     .catch(error => {
                         reject(error);

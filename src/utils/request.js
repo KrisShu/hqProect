@@ -34,25 +34,12 @@ service.interceptors.request.use(
         const isJsonGet = (config.headers || {}).jsonGet === true;
         // get请求映射params参数
         if (config.method === 'get' && config.params) {
-            if (config.params && !isJsonGet) {
-                // 原有 GET 请求：通过 URL 查询参数传递（默认方式）
-                // config.paramsSerializer = params => {
-                //     return Object.keys(params)
-                //         .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
-                //         .join('&');
-                // };
-                let url = config.url + '?' + tansParams(config.params);
-                url = url.slice(0, -1);
-                config.params = {};
-                console.log('url============', url);
-                config.url = url;
-            } else if (config.params && isJsonGet) {
-                // 新增的 JSON 格式 GET 请求：将 params 转换为 JSON 请求体
-                config.data = JSON.stringify(config.params);
-                config.params = {}; // 移除 URL 查询参数
-                config.headers['Content-Type'] = 'application/json'; // 设置 Content-Type
-                config.url = url;
-            }
+            let url = config.url + '?' + tansParams(config.params);
+            url = url.slice(0, -1);
+            config.params = {};
+            console.log('url============', url);
+            config.url = url;
+
         }
 
         if (!isRepeatSubmit && (config.method === 'post' || config.method === 'put')) {
