@@ -167,6 +167,9 @@
                         this.$store
                             .dispatch('Login', this.loginForm)
                             .then(() => {
+                                // 获取元数据
+                                this.$store.dispatch('GetSysMetaList');
+
                                 this.$router.push({ path: this.redirect || '/' }).catch(() => {});
                             })
                             .catch(() => {

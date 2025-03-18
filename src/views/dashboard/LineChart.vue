@@ -27,7 +27,7 @@
                 default: true,
             },
             chartData: {
-                type: Object,
+                type: Array,
                 required: true,
             },
         },
@@ -61,7 +61,7 @@
                 this.chart = echarts.init(this.$el, 'macarons');
                 this.setOptions(this.chartData);
             },
-            setOptions({ expectedData, actualData } = {}) {
+            setOptions(expectedData) {
                 this.chart.setOption({
                     xAxis: {
                         length: 12,
@@ -109,16 +109,16 @@
                         },
                     },
                     legend: {
-                        data: ['expected', 'actual'],
+                        data: ['金额'],
                     },
                     series: [
                         {
-                            name: 'expected',
+                            name: '金额',
                             itemStyle: {
                                 normal: {
-                                    color: '#FF005A',
+                                    color: '#3888fa',
                                     lineStyle: {
-                                        color: '#FF005A',
+                                        color: '#3888fa',
                                         width: 2,
                                     },
                                 },
@@ -129,26 +129,26 @@
                             animationDuration: 2800,
                             animationEasing: 'cubicInOut',
                         },
-                        {
-                            name: 'actual',
-                            smooth: false,
-                            type: 'line',
-                            itemStyle: {
-                                normal: {
-                                    color: '#3888fa',
-                                    lineStyle: {
-                                        color: '#3888fa',
-                                        width: 2,
-                                    },
-                                    areaStyle: {
-                                        color: '#f3f8ff',
-                                    },
-                                },
-                            },
-                            data: actualData,
-                            animationDuration: 2800,
-                            animationEasing: 'quadraticOut',
-                        },
+                        // {
+                        //     name: 'actual',
+                        //     smooth: false,
+                        //     type: 'line',
+                        //     itemStyle: {
+                        //         normal: {
+                        //             color: '#3888fa',
+                        //             lineStyle: {
+                        //                 color: '#3888fa',
+                        //                 width: 2,
+                        //             },
+                        //             areaStyle: {
+                        //                 color: '#f3f8ff',
+                        //             },
+                        //         },
+                        //     },
+                        //     data: actualData,
+                        //     animationDuration: 2800,
+                        //     animationEasing: 'quadraticOut',
+                        // },
                     ],
                 });
             },

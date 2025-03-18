@@ -22,7 +22,7 @@
             </el-row>
             <el-col v-for="(item, index) in dataBoard" :key="index" :xs="8" :sm="6" :md="4" :lg="4" :xl="4">
                 <div class="data-board-item flex-wrap flex-vertical a-center j-center">
-                    <p class="value">{{ item.value }}</p>
+                    <p class="value">{{ item.value }} {{ item.unit }}</p>
                     <p class="title">{{ item.title }}</p>
                 </div>
             </el-col>
@@ -49,26 +49,9 @@
 </template>
 
 <script>
+    import API from '@/api/mainApI';
     import LineChart from '@/views/dashboard/LineChart.vue';
     import BarChart from '@/views/dashboard/BarChart.vue';
-    const lineChartData = {
-        newVisitis: {
-            expectedData: [100, 120, 161, 134, 105, 160, 165],
-            actualData: [120, 82, 91, 154, 162, 140, 145],
-        },
-        messages: {
-            expectedData: [200, 192, 120, 144, 160, 130, 140],
-            actualData: [180, 160, 151, 106, 145, 150, 130],
-        },
-        purchases: {
-            expectedData: [80, 100, 121, 104, 105, 90, 100],
-            actualData: [120, 90, 100, 138, 142, 130, 130],
-        },
-        shoppings: {
-            expectedData: [130, 140, 141, 142, 145, 150, 160],
-            actualData: [120, 82, 91, 154, 162, 140, 130],
-        },
-    };
 
     export default {
         name: 'Index',
@@ -81,41 +64,152 @@
                 dataBoard: [
                     {
                         title: '累计客户',
-                        value: 100,
+                        value: null,
+                        id: 0,
                     },
                     {
                         title: '今日新增',
-                        value: 100,
+                        value: null,
+                        id: 1,
                     },
                     {
                         title: '今日完成',
-                        value: 100,
+                        value: null,
+                        id: 2,
                     },
                     {
-                        title: '今日结单4',
-                        value: 100,
+                        title: '今日结单',
+                        value: null,
+                        id: 3,
                     },
                     {
-                        title: '今日结单3',
-                        value: 100,
+                        title: '本周新增',
+                        value: null,
+                        id: 4,
                     },
                     {
-                        title: '今日结单2',
-                        value: 100,
+                        title: '本周完成',
+                        value: null,
+                        id: 5,
                     },
                     {
-                        title: '今日结单2',
-                        value: 100,
+                        title: '本周结单',
+                        value: null,
+
+                        id: 6,
                     },
                     {
-                        title: '今日结单11',
-                        value: 100,
+                        title: '本月新增',
+                        value: null,
+                        id: 7,
+                    },
+                    {
+                        title: '本月完成',
+                        value: null,
+                        id: 8,
+                    },
+                    {
+                        title: '本月结单',
+                        value: null,
+                        id: 9,
+                    },
+                    {
+                        title: '累计金额',
+                        value: null,
+                        id: 10,
+                        unit: '元',
+                    },
+                    {
+                        title: '今日金额',
+                        value: null,
+                        id: 11,
+                        unit: '元',
+                    },
+                    {
+                        title: '今日定金',
+                        value: null,
+                        id: 12,
+                    },
+                    {
+                        title: '今日结单金额',
+                        value: null,
+                        id: 13,
                     },
                 ],
-                lineChartData: lineChartData.newVisitis,
+                lineChartData: [],
             };
         },
-        methods: {},
+        created() {
+            this.fetchDashboardStatistics();
+            this.fetchMonthlyEarningsStatistics();
+            this.fetchCustomerStatistics();
+        },
+        methods: {
+            //
+
+            fetchDashboardStatistics() {
+                // this.$http.get('/system/statistics/dashboardStatistics').then(res => {
+                //     if (res.code === 200) {
+                //         this.dataBoard = res.data;
+                //     }
+                // });
+                API.fetchDashboardStatistics().then(res => {
+                    console.log('222222222', res);
+                    if (res.code === 200) {
+                        this.dataBoard[0].value = res.data.totalCustomers;
+                        this.dataBoard[1].value = res.data.todayNewCustomers;
+                        this.dataBoard[2].value = res.data.todayCompletedOrders;
+                        this.dataBoard[3].value = res.data.totalCustomers; //今日结单
+                        this.dataBoard[4].value = res.data.weekNewCustomers; //本周新增
+                        this.dataBoard[5].value = res.data.weekCompletedOrders; //本周完成
+                        this.dataBoard[6].value = res.data.weekClosedOrders; //本周结单
+                        this.dataBoard[7].value = res.data.totalCustomers; //本月新增
+                        this.dataBoard[8].value = res.data.monthCompletedOrders; //本月完成
+                        this.dataBoard[9].value = res.data.monthClosedOrders; //本月结单
+                        this.dataBoard[10].value = res.data.totalRevenue; //累计金额
+                        this.dataBoard[11].value = res.data.todayRevenue; //今日金额
+                        this.dataBoard[12].value = res.data.totalCustomers; //今日定金
+                        this.dataBoard[13].value = res.data.totalCustomers; //今日结单金额
+                    }
+                });
+            },
+            fetchMonthlyEarningsStatistics() {
+                API.fetchMonthlyEarningsStatistics().then(res => {
+                    console.log('333333333', res);
+                    if (res.code === 200) {
+                        const resData = res.rows;
+                        // 创建月份映射
+                        const monthMap = {
+                            一月: 1,
+                            二月: 2,
+                            三月: 3,
+                            四月: 4,
+                            五月: 5,
+                            六月: 6,
+                            七月: 7,
+                            八月: 8,
+                            九月: 9,
+                            十月: 10,
+                            十一月: 11,
+                            十二月: 12,
+                        };
+
+                        // 按月份排序并提取earnings
+                        const earningsArray = resData
+                            .sort((a, b) => monthMap[a.month] - monthMap[b.month]) // 根据月份映射排序
+                            .map(row => row.earnings); // 提取earnings值
+
+                        this.lineChartData = earningsArray;
+                        console.log('this.lineChartData', earningsArray);
+                    }
+                });
+            },
+            fetchCustomerStatistics() {
+                API.fetchCustomerStatistics().then(res => {
+                    console.log('444444444', res);
+                });
+            },
+        },
     };
 </script>
 

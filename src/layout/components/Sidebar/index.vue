@@ -62,7 +62,7 @@
             },
         },
         created() {
-            console.log('+++++++++', this.sidebarRouters);
+            // console.log('+++++++++', this.sidebarRouters);
         },
     };
 </script>

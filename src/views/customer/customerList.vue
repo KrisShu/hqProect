@@ -39,6 +39,21 @@
             </el-col>
             <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
                 <div class="label-box">
+                    <div class="lael-input">负责人：</div>
+                </div>
+                <div class="vlue-box">
+                    <el-select v-model="queryParams.status" placeholder="请选择负责人" clearable style="width: 240px">
+                        <el-option
+                            v-for="dict in staffOptions"
+                            :key="dict.value"
+                            :label="dict.label"
+                            :value="dict.value"
+                        />
+                    </el-select>
+                </div>
+            </el-col>
+            <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
+                <div class="label-box">
                     <div class="lael-input">状态：</div>
                 </div>
                 <div class="vlue-box">
@@ -97,28 +112,23 @@
         <!-- 表格 -->
         <el-table v-loading="loading" :data="roleList" @selection-change="handleSelectionChange">
             <el-table-column type="selection" width="55" align="center" />
-            <el-table-column fixed label="单号" prop="roleId" width="120" />
-            <el-table-column label="客户概况" align="center" prop="roleName" width="250" />
-            <el-table-column label="项目概况" align="center" prop="roleKey" width="250" />
+            <el-table-column fixed label="单号" prop="orderNumber" width="120" />
+            <el-table-column label="客户概况" align="center" prop="customerProfiling" width="250" />
+            <el-table-column label="项目概况" align="center" prop="projectSummaryLable" width="250" />
 
             <el-table-column label="状态" align="center" width="100">
                 <template slot-scope="scope">
-                    <el-switch
-                        v-model="scope.row.status"
-                        active-value="0"
-                        inactive-value="1"
-                        @change="handleStatusChange(scope.row)"
-                    ></el-switch>
+                    {{ scope.row.orderState }}
                 </template>
             </el-table-column>
-            <el-table-column label="交易金额" align="center" prop="roleId" width="120" />
-            <el-table-column label="已付款" align="center" prop="roleId" width="120" />
+            <el-table-column label="交易金额" align="center" prop="totalAmount" width="120" />
+            <el-table-column label="已付款" align="center" prop="paidAmount" width="120" />
             <el-table-column label="未付款" align="center" prop="roleId" width="120" />
-            <el-table-column sortable label="下单日期" align="center" prop="roleId" width="150" />
-            <el-table-column sortable label="交付日期" align="center" prop="roleId" width="150" />
-            <el-table-column label="接单微信" prop="roleId" />
-            <el-table-column label="业务员" prop="roleId" />
-            <el-table-column label="负责人" prop="roleId" />
+            <el-table-column sortable label="下单日期" align="center" prop="startOrderTime" width="150" />
+            <el-table-column sortable label="交付日期" align="center" prop="startReleasedTime" width="150" />
+            <el-table-column label="接单微信" prop="sourceWx" />
+            <el-table-column label="业务员" prop="salemanUserName" />
+            <el-table-column label="负责人" prop="principalUserId" />
 
             <el-table-column
                 fixed="right"
@@ -350,6 +360,8 @@
 </template>
 
 <script>
+    import API from '@/api/customerApi';
+    import commApi from '@/api/commApi';
     import {
         listRole,
         getRole,
@@ -414,6 +426,23 @@
                     option3: 1,
                     value3: [],
                     status: undefined,
+
+                    orderNumber: undefined, //单号
+                    customerProfiling: undefined, //客户概况
+                    projectSummaryLable: undefined, //项目概况
+                    orderState: undefined, //状态
+                    startOrderTime: undefined, //下单日期
+                    endOrderTime: undefined, //下单日期
+                    startReleasedTime: undefined, //交付日期
+                    endReleasedTime: undefined, //交付日期
+                    sourceWx: undefined, //接单微信号
+                    salemanUserName: undefined, //业务员
+
+                    // id: undefined,
+                    // orderNumber: undefined,
+                    // customerProfiling: undefined,
+                    // projectSummaryDictCode: undefined,
+                    // projectSummaryLable: undefined,
                 },
 
                 customerForm: {}, //客户数据
@@ -465,7 +494,25 @@
                         },
                     ],
                 },
-                statusOptions: [{}],
+                statusOptions: [
+                    // 2: 未派单, 3: 已派单, 4: 已完成, 5: 结接单
+                    {
+                        value: 2,
+                        label: '未派单',
+                    },
+                    {
+                        value: 3,
+                        label: '已派单',
+                    },
+                    {
+                        value: 4,
+                        label: '已完成',
+                    },
+                    {
+                        value: 5,
+                        label: '接单',
+                    },
+                ],
                 // 表单校验
                 rules: {
                     customerInfo: [{ required: true, message: '客户概况不能为空', trigger: 'blur' }],
@@ -479,14 +526,26 @@
         },
         created() {
             this.getList();
+            this.fetchsalesmanUserList();
         },
         methods: {
+            fetchsalesmanUserList() {
+                commApi.fetchprincipalUserList({ keyWord: '1' }).then(res => {
+                    console.log('res.data----------------获取系统元数据', res.data);
+                    // this.salesmanUserList = res.data;
+                });
+            },
             /** 查询角色列表 */
             getList() {
                 this.loading = true;
-                listRole(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-                    this.roleList = response.rows;
-                    this.total = response.total;
+                // listRole(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+                //     this.roleList = response.rows;
+                //     this.total = response.total;
+                //     this.loading = false;
+                // });
+                API.fetchList(this.queryParams).then(res => {
+                    this.roleList = res.rows;
+                    this.total = res.total;
                     this.loading = false;
                 });
             },
