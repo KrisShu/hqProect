@@ -1,7 +1,7 @@
 <template>
     <div class="app-container">
         <!-- 查询条件 -->
-
+        <!-- {{ orderSateOptions }} -->
         <el-row class="search-box flex-wrap flex-hh mb20" v-show="showSearch">
             <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
                 <div class="label-box">
@@ -463,6 +463,7 @@
 <script>
     import API from '@/api/customerApi';
     import commApi from '@/api/commApi';
+    import { orderSateMeta, metaToOptions } from '@/utils/meta';
     import {
         listRole,
         getRole,
@@ -629,6 +630,10 @@
                         return 'info';
                     }
                 };
+            },
+            orderSateOptions() {
+                console.log('orderSateMeta', metaToOptions(orderSateMeta));
+                return metaToOptions(orderSateMeta);
             },
         },
         created() {
@@ -927,10 +932,13 @@
             line-height: 36px;
             text-align: right;
             flex-shrink: 0;
+            font-weight: 500;
         }
         .vlue-box {
             flex: 1;
             flex-shrink: 0;
+            font-size: 14px;
+            color: #606266;
         }
     }
     .el-dialog__header {

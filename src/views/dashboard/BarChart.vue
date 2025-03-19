@@ -24,11 +24,23 @@
                 type: String,
                 default: '300px',
             },
+            chartData: {
+                type: Array,
+                required: true,
+            },
         },
         data() {
             return {
                 chart: null,
             };
+        },
+        watch: {
+            chartData: {
+                deep: true,
+                handler(val) {
+                    this.initChart();
+                },
+            },
         },
         mounted() {
             this.$nextTick(() => {
@@ -71,13 +83,7 @@
                         //     { product: '二月', 新增: 83.1, 完成: 73.4, 结单: 55.1 },
                         //     { product: '三月', 新增: 83.1, 完成: 73.4, 结单: 55.1 },
                         // ],
-                        source: [
-                            ['product', '新增', '完成', '结单'],
-                            ['一月', 43.3, 85.8, 93.7],
-                            ['二月', 83.1, 73.4, 55.1],
-                            ['三月', 86.4, 65.2, 82.5],
-                            ['Walnut Brownie', 72.4, 53.9, 39.1],
-                        ],
+                        source: this.chartData,
                     },
                     xAxis: [
                         {

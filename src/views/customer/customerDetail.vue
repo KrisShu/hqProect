@@ -4,13 +4,15 @@
             <div slot="header" class="clearfix">
                 <el-row>
                     <div class="flex-wrap a-center">
-                        <p class="cap-title">单号：xxx</p>
-                        <el-tag type="success ml10">标签二</el-tag>
+                        <p class="cap-title mr10">单号：{{ baseDetail.orderNumber }}</p>
+                        <el-tag :type="orderStateType(baseDetail.orderState)">
+                            {{ orderState(baseDetail.orderState) }}</el-tag
+                        >
                     </div>
 
                     <div class="flex-wrap a-center">
-                        <p class="text">业务员：张三</p>
-                        <p class="text">接单员：李四</p>
+                        <p class="text">业务员：{{ baseDetail.salemanUserName }}</p>
+                        <p class="text ml10">接单员：</p>
                     </div>
                 </el-row>
             </div>
@@ -32,17 +34,23 @@
                         </div>
                         <div class="flex-wrap lable-item">
                             <div class="label-box">客户微信：</div>
-                            <div class="vlue-box">{{}}</div>
+                            <div class="vlue-box">{{ baseDetail.customerWx }}</div>
                         </div>
                         <div class="flex-wrap lable-item">
                             <div class="label-box">交易金额：</div>
-                            <div class="vlue-box">{{ baseDetail.totalAmount }}</div>
+                            <div class="vlue-box">
+                                <el-link type="primary">{{ baseDetail.totalAmount.toFixed(2) }}</el-link>
+                            </div>
                         </div>
                         <div class="flex-wrap lable-item">
                             <div class="label-box"></div>
                             <div class="vlue-box flex-wrap">
-                                <div>已付款：{{ baseDetail.paidAmount }}</div>
-                                <div>未付款：{{ (baseDetail.totalAmount - baseDetail.paidAmount).toFixed(2) }}</div>
+                                <el-link type="success" class="mr10"
+                                    >已付款：{{ baseDetail.paidAmount.toFixed(2) }}</el-link
+                                >
+                                <el-link type="danger"
+                                    >未付款：{{ (baseDetail.totalAmount - baseDetail.paidAmount).toFixed(2) }}</el-link
+                                >
                             </div>
                         </div>
 
@@ -56,42 +64,86 @@
                         </div>
                         <div class="flex-wrap lable-item">
                             <div class="label-box">完成时间：</div>
-                            <div class="vlue-box">{{}}</div>
+                            <div class="vlue-box">{{ parseTime(baseDetail.completionTime) || '' }}</div>
                         </div>
                     </el-row>
                     <el-divider content-position="left">系统信息</el-divider>
                     <el-row>
                         <div class="flex-wrap lable-item">
                             <div class="label-box">创建人：</div>
-                            <div class="vlue-box">1111</div>
+                            <div class="vlue-box">{{ baseDetail.createBy }}</div>
                         </div>
                         <div class="flex-wrap lable-item">
                             <div class="label-box">创建时间：</div>
-                            <div class="vlue-box">1111</div>
+                            <div class="vlue-box">{{ baseDetail.createTime }}</div>
                         </div>
                         <div class="flex-wrap lable-item">
                             <div class="label-box">更新时间：</div>
-                            <div class="vlue-box">1111</div>
+                            <div class="vlue-box">{{ baseDetail.updateTime }}</div>
                         </div>
                     </el-row>
                 </el-tab-pane>
-                <el-tab-pane label="操作记录" name="second">配置管理</el-tab-pane>
+                <el-tab-pane label="操作记录" name="second">
+                    <div class="infinite-list-wrapper" style="overflow: auto">
+                        <ul class="infinite-list" v-infinite-scroll="load" infinite-scroll-disabled="disabled">
+                            <li v-for="(item, index) in operationRecord" :key="index" class="list-item">
+                                {{ index }} {{ item.createBy }}在{{ item.createTime }}操作{{ item.operatingRecord }}
+                            </li>
+                        </ul>
+                        <p class="loading-noMore" v-if="loading">加载中... <i class="el-icon-loading"></i></p>
+                        <p class="loading-noMore" v-if="noMore">没有更多了 <i class="el-icon-potato-strips"></i></p>
+                    </div>
+                </el-tab-pane>
             </el-tabs>
         </el-card>
     </div>
 </template>
 
 <script>
-    import { get } from 'sortablejs';
-
+    import { orderSateMeta, metaToOptions } from '@/utils/meta';
+    import API from '@/api/customerApi';
     export default {
         name: 'customerDetail',
         data() {
             return {
                 activeName: 'first',
                 baseDetail: {},
-                operationRecord: {},
+                operationRecord: [],
+                pageNum: 1,
+                pageSize: 10,
+
+                loading: false,
+                total: 0,
             };
+        },
+        computed: {
+            orderSateOptions() {
+                return metaToOptions(orderSateMeta);
+            },
+            orderState() {
+                return value => {
+                    return this.orderSateOptions.find(item => item.value == value)?.label;
+                };
+            },
+            orderStateType() {
+                return value => {
+                    if (value == 2) {
+                        return 'warning';
+                    } else if (value == 3) {
+                        return 'danger';
+                    } else if (value == 4) {
+                        return 'success';
+                    } else if (value == 5) {
+                        return 'info';
+                    }
+                };
+            },
+            noMore() {
+                return this.operationRecord.length >= this.total;
+            },
+            disabled() {
+                return this.loading || this.noMore;
+            },
         },
         created() {
             // this.$route.params;
@@ -103,9 +155,28 @@
                 // this.$route.params;
                 console.log('接收参数', JSON.parse(this.$route.query.details));
                 this.baseDetail = JSON.parse(this.$route.query.details);
+                this.fetchRecordList();
             },
             handleClick(tab, event) {
                 console.log(tab, event);
+            },
+            fetchRecordList() {
+                API.recordList({
+                    customerOrderId: this.baseDetail.id,
+                    pageNum: this.pageNum,
+                    pageSize: this.pageSize,
+                }).then(res => {
+                    // this.operationRecord = res.data;
+                    console.log('操作记录', res);
+                    this.operationRecord = this.operationRecord.concat(res.rows || []);
+                    this.total = res.total;
+                    this.loading = false;
+                });
+            },
+            load() {
+                this.loading = true;
+                this.pageNum++;
+                this.fetchRecordList();
             },
         },
     };
@@ -117,5 +188,27 @@
     }
     .text {
         font-size: 12px;
+    }
+
+    .infinite-list {
+        height: 300px;
+        padding: 0px;
+        margin: 0px;
+        list-style: none;
+        overflow: auto;
+        .list-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 50px;
+            color: rgb(125, 188, 252);
+            background: rgb(232, 243, 254);
+            margin: 10px;
+        }
+    }
+    .loading-noMore {
+        text-align: center;
+        color: #999;
+        font-size: 14px;
     }
 </style>

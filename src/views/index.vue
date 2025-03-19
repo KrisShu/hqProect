@@ -42,7 +42,7 @@
                 <h4><i class="el-icon-user"></i>客户</h4>
             </el-row>
             <el-col :span="24">
-                <bar-chart />
+                <bar-chart :chart-data="barChartData" />
             </el-col>
         </el-row>
     </div>
@@ -137,6 +137,7 @@
                     },
                 ],
                 lineChartData: [],
+                barChartData: [],
             };
         },
         created() {
@@ -148,13 +149,7 @@
             //
 
             fetchDashboardStatistics() {
-                // this.$http.get('/system/statistics/dashboardStatistics').then(res => {
-                //     if (res.code === 200) {
-                //         this.dataBoard = res.data;
-                //     }
-                // });
                 API.fetchDashboardStatistics().then(res => {
-                    console.log('222222222', res);
                     if (res.code === 200) {
                         this.dataBoard[0].value = res.data.totalCustomers; //累计客户
                         this.dataBoard[1].value = res.data.todayNewCustomers; //今日新增
@@ -206,7 +201,7 @@
             },
             fetchCustomerStatistics() {
                 API.fetchCustomerStatistics().then(res => {
-                    console.log('444444444', res);
+                    this.barChartData = res.data;
                 });
             },
         },

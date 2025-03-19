@@ -72,6 +72,15 @@ export function cancelOrder(data) {
         data: data,
     });
 }
+
+// 详情-操作记录
+export function recordList(data) {
+    return request({
+        url: '/system/record/list',
+        method: 'post',
+        data: data,
+    });
+}
 export default {
     fetchList,
     addOrder,
@@ -82,4 +91,5 @@ export default {
     statementOfAccount,
     completeOrder,
     cancelOrder,
+    recordList,
 };
