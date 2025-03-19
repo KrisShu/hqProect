@@ -20,29 +20,29 @@
                     <el-row>
                         <div class="flex-wrap lable-item">
                             <div class="label-box">单号：</div>
-                            <div class="vlue-box">1111</div>
+                            <div class="vlue-box">{{ baseDetail.orderNumber }}</div>
                         </div>
                         <div class="flex-wrap lable-item">
                             <div class="label-box">客户概况：</div>
-                            <div class="vlue-box">1111</div>
+                            <div class="vlue-box">{{ baseDetail.customerProfiling }}</div>
                         </div>
                         <div class="flex-wrap lable-item">
                             <div class="label-box">项目概况：</div>
-                            <div class="vlue-box">1111</div>
+                            <div class="vlue-box">{{ baseDetail.projectSummaryLable }}</div>
                         </div>
                         <div class="flex-wrap lable-item">
                             <div class="label-box">客户微信：</div>
-                            <div class="vlue-box">1111</div>
+                            <div class="vlue-box">{{}}</div>
                         </div>
                         <div class="flex-wrap lable-item">
                             <div class="label-box">交易金额：</div>
-                            <div class="vlue-box">1111</div>
+                            <div class="vlue-box">{{ baseDetail.totalAmount }}</div>
                         </div>
                         <div class="flex-wrap lable-item">
                             <div class="label-box"></div>
                             <div class="vlue-box flex-wrap">
-                                <div>已付款：</div>
-                                <div>未付款：</div>
+                                <div>已付款：{{ baseDetail.paidAmount }}</div>
+                                <div>未付款：{{ (baseDetail.totalAmount - baseDetail.paidAmount).toFixed(2) }}</div>
                             </div>
                         </div>
 
@@ -82,14 +82,28 @@
 </template>
 
 <script>
+    import { get } from 'sortablejs';
+
     export default {
         name: 'customerDetail',
         data() {
             return {
                 activeName: 'first',
+                baseDetail: {},
+                operationRecord: {},
             };
         },
+        created() {
+            // this.$route.params;
+            // console.log('接收参数', JSON.parse(this.$route.query.details));
+            this.getDetail();
+        },
         methods: {
+            getDetail() {
+                // this.$route.params;
+                console.log('接收参数', JSON.parse(this.$route.query.details));
+                this.baseDetail = JSON.parse(this.$route.query.details);
+            },
             handleClick(tab, event) {
                 console.log(tab, event);
             },

@@ -156,20 +156,20 @@
                 API.fetchDashboardStatistics().then(res => {
                     console.log('222222222', res);
                     if (res.code === 200) {
-                        this.dataBoard[0].value = res.data.totalCustomers;
-                        this.dataBoard[1].value = res.data.todayNewCustomers;
-                        this.dataBoard[2].value = res.data.todayCompletedOrders;
-                        this.dataBoard[3].value = res.data.totalCustomers; //今日结单
+                        this.dataBoard[0].value = res.data.totalCustomers; //累计客户
+                        this.dataBoard[1].value = res.data.todayNewCustomers; //今日新增
+                        this.dataBoard[2].value = res.data.todayCompletedOrders; //今日完成
+                        this.dataBoard[3].value = res.data.todayClosedOrders; //今日结单
                         this.dataBoard[4].value = res.data.weekNewCustomers; //本周新增
                         this.dataBoard[5].value = res.data.weekCompletedOrders; //本周完成
                         this.dataBoard[6].value = res.data.weekClosedOrders; //本周结单
-                        this.dataBoard[7].value = res.data.totalCustomers; //本月新增
+                        this.dataBoard[7].value = res.data.monthNewCustomers; //本月新增
                         this.dataBoard[8].value = res.data.monthCompletedOrders; //本月完成
                         this.dataBoard[9].value = res.data.monthClosedOrders; //本月结单
                         this.dataBoard[10].value = res.data.totalRevenue; //累计金额
-                        this.dataBoard[11].value = res.data.todayRevenue; //今日金额
-                        this.dataBoard[12].value = res.data.totalCustomers; //今日定金
-                        this.dataBoard[13].value = res.data.totalCustomers; //今日结单金额
+                        this.dataBoard[11].value = res.data.todayAmount; //今日金额
+                        this.dataBoard[12].value = res.data.todayDeposit; //今日定金
+                        this.dataBoard[13].value = res.data.totalSettlement; //今日结单金额
                     }
                 });
             },

@@ -8,22 +8,78 @@ export function fetchList(data) {
         data: data,
     });
 }
-
-export function fetchMonthlyEarningsStatistics(data) {
+// 新增客户订单
+export function addOrder(data) {
     return request({
-        url: '/system/statistics/monthlyEarningsStatistics',
+        url: '/system/order/add',
+        method: 'post',
+        data: data,
+    });
+}
+// 编辑客户订单
+export function editOrder(data) {
+    return request({
+        url: '/system/order/edit',
+        method: 'post',
+        data: data,
+    });
+}
+// 删除
+export function removeOrder(ids) {
+    return request({
+        url: `/system/order/remove/${ids}`,
+        method: 'delete',
+    });
+}
+// 派单
+export function sendOrder(data) {
+    return request({
+        url: '/system/order/sendOrder',
+        method: 'post',
+        data: data,
+    });
+}
+// 追加
+export function additionalAmount(data) {
+    return request({
+        url: '/system/order/additionalAmount',
+        method: 'post',
+        data: data,
+    });
+}
+//结单
+export function statementOfAccount(data) {
+    return request({
+        url: '/system/order/statementOfAccount',
+        method: 'post',
+        data: data,
+    });
+}
+// 订单完成
+export function completeOrder(data) {
+    return request({
+        url: '/system/order/complete',
         method: 'post',
         data: data,
     });
 }
 
-export function fetchCustomerStatistics() {
+// 取消完成
+export function cancelOrder(data) {
     return request({
-        url: '/system/statistics/list',
-        method: 'get',
+        url: '/system/order/cancel',
+        method: 'post',
+        data: data,
     });
 }
-
 export default {
     fetchList,
+    addOrder,
+    editOrder,
+    removeOrder,
+    sendOrder,
+    additionalAmount,
+    statementOfAccount,
+    completeOrder,
+    cancelOrder,
 };

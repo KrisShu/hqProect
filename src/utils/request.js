@@ -39,7 +39,12 @@ service.interceptors.request.use(
             config.params = {};
             console.log('url============', url);
             config.url = url;
-
+        }
+        if (config.method === 'get' && config.rawParams) {
+            // 直接使用原始参数，不做处理
+            config.params = config.rawParams;
+            console.log('原始请求URL：', config.url);
+            console.log('原始参数：', config.params);
         }
 
         if (!isRepeatSubmit && (config.method === 'post' || config.method === 'put')) {

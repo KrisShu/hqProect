@@ -1,7 +1,7 @@
 <template>
     <div class="app-container">
         <!-- 查询条件 -->
-        {{ $store.getters.name }}
+
         <el-row class="search-box flex-wrap flex-hh mb20" v-show="showSearch">
             <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
                 <div class="label-box">
@@ -96,13 +96,14 @@
                 <div class="vlue-box">
                     <el-date-picker
                         v-model="queryParams.value3"
-                        style="width: 240px"
-                        value-format="yyyy-MM-dd"
-                        type="daterange"
-                        range-separator="-"
+                        type="datetimerange"
+                        range-separator="至"
                         start-placeholder="开始日期"
                         end-placeholder="结束日期"
-                    ></el-date-picker>
+                        align="right"
+                        value-format="yyyy-MM-dd HH:mm:ss"
+                    >
+                    </el-date-picker>
                 </div>
             </el-row>
 
@@ -136,14 +137,20 @@
 
             <el-table-column label="状态" align="center" width="100">
                 <template slot-scope="scope">
-                    {{ scope.row.orderState }}
+                    <el-tag :type="orderStateType(scope.row.orderState)">
+                        {{ orderState(scope.row.orderState) }}</el-tag
+                    >
                 </template>
             </el-table-column>
             <el-table-column label="交易金额" align="center" prop="totalAmount" width="120" />
             <el-table-column label="已付款" align="center" prop="paidAmount" width="120" />
-            <el-table-column label="未付款" align="center" prop="roleId" width="120" />
-            <el-table-column sortable label="下单日期" align="center" prop="startOrderTime" width="150" />
-            <el-table-column sortable label="交付日期" align="center" prop="startReleasedTime" width="150" />
+            <el-table-column label="未付款" align="center" prop="roleId" width="120">
+                <template slot-scope="scope">
+                    {{ (scope.row.totalAmount - scope.row.paidAmount).toFixed(2) }}
+                </template>
+            </el-table-column>
+            <el-table-column sortable label="下单日期" align="center" prop="orderTime" width="150" />
+            <el-table-column sortable label="交付日期" align="center" prop="releasedTime" width="150" />
             <el-table-column label="接单微信" prop="sourceWx" />
             <el-table-column label="业务员" prop="salemanUserName" />
             <el-table-column label="负责人" prop="principalUserId" />
@@ -156,28 +163,65 @@
                 width="200"
             >
                 <template slot-scope="scope" v-if="scope.row.roleId !== 1">
+                    <!-- 按钮权限
+
+                        详情：所有
+                        编辑：所有
+
+                        删除：所有角色                    未派单的状态才能点击删除
+                        完成: 负责人管理员、业务管理员    已派单的状态才能点击已完成
+                    取消完成：负责人管理员、业务管理员    已完成的状态才能点击取消完成
+                        追加：负责人管理员、业务管理员    只有结单的不能追加
+                        结单：负责人管理员、业务管理员    客户订单已完成状态才能点击结单
+                        派单：负责人管理员、业务管理员    客户订单未派单状态和派单状态 才能点击派单
+
+                    -->
                     <el-button size="mini" type="text" icon="el-icon-view" @click="handleDetail(scope.row)">
                         详情
                     </el-button>
                     <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)">
                         编辑
                     </el-button>
-                    <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)">
+                    <el-button
+                        v-show="scope.row.orderState == 2"
+                        size="mini"
+                        type="text"
+                        icon="el-icon-delete"
+                        @click="handleDelete(scope.row)"
+                    >
                         删除
                     </el-button>
 
-                    <el-button size="mini" type="text" icon="el-icon-finished" @click="handleCompelete(scope.row)">
+                    <el-button
+                        v-show="scope.row.orderState == 3"
+                        size="mini"
+                        type="text"
+                        icon="el-icon-finished"
+                        @click="handleCompelete(scope.row)"
+                    >
                         完成
                     </el-button>
                     <el-button
+                        v-show="scope.row.orderState == 4"
+                        size="mini"
+                        type="text"
+                        icon="el-icon-circle-close"
+                        @click="handleCancel(scope.row)"
+                    >
+                        取消
+                    </el-button>
+
+                    <el-button
+                        v-show="scope.row.orderState != 5"
                         size="mini"
                         type="text"
                         icon="el-icon-circle-plus-outline"
-                        @click="handleDelete(scope.row)"
+                        @click="handleOrder('additionalAmount', scope.row)"
                     >
                         追加
                     </el-button>
                     <el-button
+                        v-show="scope.row.orderState == 4"
                         size="mini"
                         type="text"
                         icon="el-icon-circle-check"
@@ -185,7 +229,13 @@
                     >
                         结单
                     </el-button>
-                    <el-button size="mini" type="text" icon="el-icon-top-right" @click="handleOrder('send', scope.row)">
+                    <el-button
+                        v-show="scope.row.orderState == 2 || scope.row.orderState == 3"
+                        size="mini"
+                        type="text"
+                        icon="el-icon-top-right"
+                        @click="handleOrder('send', scope.row)"
+                    >
                         派单
                     </el-button>
                 </template>
@@ -202,34 +252,33 @@
 
         <!-- 添加或修改客户 -->
         <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-            <el-form ref="form" :model="customerForm" :rules="rules" label-width="100px">
-                <el-form-item label="客户概况" prop="customerInfo">
-                    <el-input v-model="customerForm.customerInfo" placeholder="请输入客户概况" />
+            <el-form ref="customerForm" :model="customerForm" :rules="customerFormRules" label-width="100px">
+                <el-form-item label="客户概况" prop="customerProfiling">
+                    <el-input v-model="customerForm.customerProfiling" placeholder="请输入客户概况" />
                 </el-form-item>
-                <el-form-item label="项目概况" prop="peojectInfo">
+                <el-form-item label="项目概况" prop="projectSummaryDictCode">
                     <el-select
-                        v-model="customerForm.peojectInfo"
-                        value-key=""
+                        v-model="customerForm.projectSummaryDictCode"
                         placeholder="请选择对应的项目概况"
                         clearable
                         class="w100"
                     >
                         <el-option
-                            v-for="item in projectOptions"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value"
+                            v-for="item in $store.getters.projectSummaryList"
+                            :key="item.dictValue"
+                            :label="item.dictLabel"
+                            :value="item.dictValue"
                         >
                         </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="客户微信" prop="wechat">
-                    <el-input v-model="customerForm.wechat" placeholder="请输入客户微信" />
+                <el-form-item label="客户微信" prop="customerWx">
+                    <el-input v-model="customerForm.customerWx" placeholder="请输入客户微信" />
                 </el-form-item>
-                <el-form-item label="交易金额" prop="num">
+                <el-form-item label="交易金额" prop="totalAmount">
                     <el-input-number
                         class="w100"
-                        v-model="customerForm.num"
+                        v-model="customerForm.totalAmount"
                         controls-position="right"
                         :precision="2"
                         :step="1"
@@ -237,50 +286,69 @@
                         :max="5000"
                     ></el-input-number>
                 </el-form-item>
-                <el-form-item label="已付款" prop="roleName">
+                <el-form-item label="已付款" prop="paidAmount">
                     <el-input-number
                         class="w100"
-                        v-model="customerForm.payMoney"
+                        v-model="customerForm.paidAmount"
                         controls-position="right"
                         :precision="2"
                         :step="1"
                         :min="0"
-                        :max="5000"
+                        :max="50000"
                     ></el-input-number>
                 </el-form-item>
-                <el-form-item label="下单日期" prop="createTime">
+                <el-form-item label="未付款" prop="finalPayment">
+                    <el-input-number
+                        class="w100"
+                        :value="finalPayment"
+                        controls-position="right"
+                        :precision="2"
+                        :step="1"
+                        :min="0"
+                        :max="50000"
+                        disabled
+                    ></el-input-number>
+                </el-form-item>
+                <el-form-item label="下单日期" prop="orderTime">
                     <el-date-picker
                         class="w100"
-                        v-model="customerForm.createTime"
+                        v-model="customerForm.orderTime"
                         type="datetime"
                         placeholder="选择日期时间"
                         align="right"
+                        value-format="yyyy-MM-dd HH:mm:ss"
                         :picker-options="pickerOptions"
                     >
                     </el-date-picker>
                 </el-form-item>
-                <el-form-item label="交付时间" prop="completeTime">
+                <el-form-item label="交付时间" prop="releasedTime">
                     <el-date-picker
                         class="w100"
-                        v-model="customerForm.completeTime"
+                        v-model="customerForm.releasedTime"
                         type="datetime"
                         placeholder="选择日期时间"
                         align="right"
+                        value-format="yyyy-MM-dd HH:mm:ss"
                         :picker-options="pickerOptions"
                     >
                     </el-date-picker>
                 </el-form-item>
-                <el-form-item label="接单微信" prop="staffWechat">
-                    <el-input v-model="customerForm.staffWechat" placeholder="请输入接单微信" />
+                <el-form-item label="接单微信" prop="sourceWx">
+                    <el-input v-model="customerForm.sourceWx" placeholder="请输入接单微信" />
                 </el-form-item>
-
-                <el-form-item label="业务员">
-                    <el-select class="w100" v-model="customerForm.staffId" placeholder="请选择对应的业务员" clearable>
+                <!-- 管理员才有当前项选择；业务员就是新建客户的人 -->
+                <el-form-item label="业务员" prop="salesmanUserId">
+                    <el-select
+                        class="w100"
+                        v-model="customerForm.salesmanUserId"
+                        placeholder="请选择对应的业务员"
+                        clearable
+                    >
                         <el-option
-                            v-for="item in staffOptions"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value"
+                            v-for="item in $store.getters.salesmanUserList"
+                            :key="item.userId"
+                            :label="item.userName"
+                            :value="item.userId"
                         >
                         </el-option>
                     </el-select>
@@ -313,58 +381,73 @@
                 </div>
                 <div class="flex-wrap lable-item">
                     <div class="label-box">客户概况：</div>
-                    <div class="vlue-box">1111</div>
+                    <div class="vlue-box">{{ detailsForm.customerProfiling }}</div>
                 </div>
                 <div class="flex-wrap lable-item">
                     <div class="label-box">项目概况：</div>
-                    <div class="vlue-box">1111</div>
+                    <div class="vlue-box">{{ detailsForm.projectSummaryLable }}</div>
                 </div>
                 <div class="flex-wrap lable-item">
                     <div class="label-box">状态：</div>
-                    <div class="vlue-box">1111</div>
+                    <div class="vlue-box">{{ detailsForm.orderState }}</div>
                 </div>
                 <div class="flex-wrap lable-item">
                     <div class="label-box">交易金额：</div>
-                    <div class="vlue-box">1111</div>
+                    <div class="vlue-box">
+                        <el-link type="primary">{{ detailsForm.totalAmount }}</el-link>
+                    </div>
                 </div>
                 <div class="flex-wrap lable-item">
                     <div class="label-box"></div>
                     <div class="vlue-box flex-wrap">
-                        <div>已付款：</div>
-                        <div>未付款：</div>
+                        <el-link type="success" class="mr10">已付款：{{ detailsForm.paidAmount }}</el-link>
+                        <el-link type="danger">未付款：{{ finalPayment_detailsForm }}</el-link>
                     </div>
                 </div>
 
                 <div class="flex-wrap lable-item">
                     <div class="label-box">下单日期：</div>
-                    <div class="vlue-box">1111</div>
+                    <div class="vlue-box">{{ detailsForm.orderTime }}</div>
                 </div>
                 <div class="flex-wrap lable-item">
                     <div class="label-box">交付日期：</div>
-                    <div class="vlue-box">1111</div>
+                    <div class="vlue-box">{{ detailsForm.releasedTime }}</div>
                 </div>
                 <div class="flex-wrap lable-item">
                     <div class="label-box">接单微信：</div>
-                    <div class="vlue-box">1111</div>
+                    <div class="vlue-box">{{ detailsForm.sourceWx }}</div>
                 </div>
 
                 <el-form-item label="负责人：">
                     <el-select
                         class="w100"
-                        v-model="detailsForm.principal"
+                        v-model="detailsForm.principalUserId"
                         placeholder="请选择负责人"
                         :disabled="isPrincipal"
                         clearable
                     >
                         <el-option
-                            v-for="item in staffOptions"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value"
+                            v-for="item in $store.getters.principalUserList"
+                            :key="item.userId"
+                            :label="item.userName"
+                            :value="item.userId"
                         >
                         </el-option>
                     </el-select>
                 </el-form-item>
+                <template v-if="title == '追加'">
+                    <el-form-item label="追加金额：">
+                        <el-input-number
+                            class="w100"
+                            v-model="detailsForm.amount"
+                            controls-position="right"
+                            :precision="2"
+                            :step="1"
+                            :min="-50000"
+                            :max="50000"
+                        ></el-input-number>
+                    </el-form-item>
+                </template>
                 <el-form-item label="备注：">
                     <el-input v-model="detailsForm.remark" type="textarea" :rows="2" maxlength="300" show-word-limit />
                 </el-form-item>
@@ -411,28 +494,7 @@
                 // 是否显示弹出层（数据权限）
                 openDataScope: false,
                 // 数据范围选项
-                dataScopeOptions: [
-                    {
-                        value: '1',
-                        label: '全部数据权限',
-                    },
-                    {
-                        value: '2',
-                        label: '自定数据权限',
-                    },
-                    {
-                        value: '3',
-                        label: '本部门数据权限',
-                    },
-                    {
-                        value: '4',
-                        label: '本部门及以下数据权限',
-                    },
-                    {
-                        value: '5',
-                        label: '仅本人数据权限',
-                    },
-                ],
+
                 // 查询参数
                 queryParams: {
                     pageNum: 1,
@@ -457,45 +519,48 @@
                     ReleasedTime: [], //交付日期
                     sourceWx: undefined, //接单微信号
                     salesmanUserId: undefined, //业务员
-
-                    // id: undefined,
-                    // orderNumber: undefined,
-                    // customerProfiling: undefined,
-                    // projectSummaryDictCode: undefined,
-                    // projectSummaryLable: undefined,
                 },
 
-                customerForm: {}, //客户数据
-                detailsForm: {}, //结单&派单数据
+                customerForm: {
+                    customerProfiling: undefined, //客户概况
+                    projectSummaryDictCode: undefined, //项目概况
+                    projectSummaryLable: undefined, //项目概况
+                    customerWx: undefined, //客户微信
+                    totalAmount: undefined, //交易金额
+                    paidAmount: undefined, //已付款
+                    finalPayment: undefined, //未付款
+                    orderTime: undefined, //下单日期
+                    releasedTime: undefined, //交付日期
+                    sourceWx: undefined, //接单微信
+                    salesmanUserId: undefined, //业务员
+                    remark: undefined, //备注
+                }, //客户数据
+                customerFormRules: {
+                    customerProfiling: [{ required: true, message: '客户概况不能为空', trigger: 'blur' }],
+                    projectSummaryDictCode: [{ required: true, message: '请选择对应的项目概况', trigger: 'change' }],
+
+                    totalAmount: [{ required: true, message: '请输入交易金额', trigger: 'blur' }],
+
+                    orderTime: [{ required: true, message: '请选择下单日期', trigger: 'change' }],
+                    releasedTime: [{ required: true, message: '请选择交付日期', trigger: 'change' }],
+                    sourceWx: [{ required: true, message: '请输入接单微信', trigger: 'blur' }],
+                },
+                detailsForm: {
+                    orderNumber: undefined, //单号
+                    customerProfiling: undefined, //客户概况
+                    projectSummaryLable: undefined, //项目概况
+                    orderState: undefined, //状态
+                    totalAmount: undefined, //交易金额
+                    paidAmount: undefined, //已付款
+
+                    orderTime: undefined, //下单日期
+                    releasedTime: undefined, //交付日期
+                    sourceWx: undefined, //接单微信
+                    salesmanUserId: undefined, //业务员
+                    remark: undefined, //备注
+                    amount: undefined, //追加金额
+                }, //结单&派单数据
                 isPrincipal: false, //是否禁用负责人
-                staffOptions: [
-                    {
-                        value: '1',
-                        label: '张三',
-                    },
-                    {
-                        value: '2',
-                        label: '李四',
-                    },
-                    {
-                        value: '3',
-                        label: '王五',
-                    },
-                ],
-                projectOptions: [
-                    {
-                        value: '1',
-                        label: '项目1',
-                    },
-                    {
-                        value: '2',
-                        label: '项目2',
-                    },
-                    {
-                        value: '3',
-                        label: '项目3',
-                    },
-                ],
                 pickerOptions: {
                     shortcuts: [
                         {
@@ -530,39 +595,48 @@
                     },
                     {
                         value: 5,
-                        label: '接单',
+                        label: '已结单',
                     },
                 ],
-                // 表单校验
-                rules: {
-                    customerInfo: [{ required: true, message: '客户概况不能为空', trigger: 'blur' }],
-                    peojectInfo: [{ required: true, message: '请选择对应的项目概况', trigger: 'change' }],
-                    num: [{ required: true, message: '请输入正确的交易金额', trigger: 'blur' }],
-                    completeTime: [{ required: true, message: '请选择交付时间', trigger: 'change' }],
-                    createTime: [{ required: true, message: '请选择下单时间', trigger: 'change' }],
-                    staffWechat: [{ required: true, message: '请输入接单人员的微信', trigger: 'blur' }],
-                },
             };
+        },
+        computed: {
+            // 未付款
+            finalPayment() {
+                const total = Number(this.customerForm.totalAmount) || 0;
+                const paid = Number(this.customerForm.paidAmount) || 0;
+                return (total - paid).toFixed(2); // 保留两位小数
+            },
+            finalPayment_detailsForm() {
+                const total = Number(this.detailsForm.totalAmount) || 0;
+                const paid = Number(this.detailsForm.paidAmount) || 0;
+                return (total - paid).toFixed(2); // 保留两位小数
+            },
+            orderState() {
+                return value => {
+                    return this.statusOptions.find(item => item.value == value)?.label;
+                };
+            },
+            orderStateType() {
+                return value => {
+                    if (value == 2) {
+                        return 'warning';
+                    } else if (value == 3) {
+                        return 'danger';
+                    } else if (value == 4) {
+                        return 'success';
+                    } else if (value == 5) {
+                        return 'info';
+                    }
+                };
+            },
         },
         created() {
             this.getList();
-            // this.fetchsalesmanUserList();
         },
         methods: {
-            // fetchsalesmanUserList() {
-            //     commApi.fetchprincipalUserList({ keyWord: undefined }).then(res => {
-            //         console.log('res.data----------------获取系统元数据', res.rows);
-            //         // this.salesmanUserList = res.data;
-            //     });
-            // },
-            /** 查询角色列表 */
             getList() {
                 this.loading = true;
-                // listRole(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-                //     this.roleList = response.rows;
-                //     this.total = response.total;
-                //     this.loading = false;
-                // });
                 API.fetchList(this.queryParams).then(res => {
                     this.roleList = res.rows;
                     this.total = res.total;
@@ -570,19 +644,74 @@
                 });
             },
             optionSelectChange(key, valueKey) {
-                console.log('key', key, valueKey);
+                // console.log('key', key, valueKey);
+                // this.queryParams[key] = this.queryParams[valueKey];
+                // console.log('this.queryParams', this.queryParams[key]);
+
+                // this.queryParams.option1 == 'orderNumber';
+                if (key == 'orderNumber') {
+                    this.queryParams.sourceWx = undefined;
+                    this.queryParams.customerProfiling = undefined;
+                } else if (key == 'sourceWx') {
+                    this.queryParams.orderNumber = undefined;
+                    this.queryParams.customerProfiling = undefined;
+                } else if (key == 'customerProfiling') {
+                    this.queryParams.orderNumber = undefined;
+                    this.queryParams.sourceWx = undefined;
+                } else if (key == 'OrderTime') {
+                    this.queryParams.ReleasedTime = undefined;
+                } else if (key == 'ReleasedTime') {
+                    this.queryParams.OrderTime = undefined;
+                }
+
                 this.queryParams[key] = this.queryParams[valueKey];
+                console.log('this.queryParams', this.queryParams[key]);
             },
 
             /** 搜索按钮操作 */
             handleQuery() {
                 this.queryParams.pageNum = 1;
+                this.queryParams.option3 == 'OrderTime' ? (this.queryParams.OrderTime = this.queryParams.value3) : '';
+                this.queryParams.option3 == 'ReleasedTime'
+                    ? (this.queryParams.ReleasedTime = this.queryParams.value3)
+                    : '';
+                this.queryParams.startOrderTime = this.queryParams.OrderTime?.[0] || undefined;
+                this.queryParams.endOrderTime = this.queryParams.OrderTime?.[1] || undefined;
+
+                this.queryParams.startReleasedTime = this.queryParams.ReleasedTime?.[0] || undefined;
+                this.queryParams.endReleasedTime = this.queryParams.ReleasedTime?.[1] || undefined;
+                // this.queryParams.value3 = undefined;
+                // this.queryParams.OrderTime = undefined;
+                // this.queryParams.ReleasedTime = undefined;
+                this.queryParams.option1 == 'orderNumber'
+                    ? (this.queryParams.orderNumber = this.queryParams.value1)
+                    : '';
+                this.queryParams.option1 == 'sourceWx' ? (this.queryParams.sourceWx = this.queryParams.value1) : '';
+                this.queryParams.option1 == 'customerProfiling'
+                    ? (this.queryParams.customerProfiling = this.queryParams.value1)
+                    : '';
                 this.getList();
             },
             /** 重置按钮操作 */
             resetQuery() {
-                this.dateRange = [];
-                this.resetForm('queryForm');
+                this.queryParams.OrderTime = [];
+                this.queryParams.ReleasedTime = [];
+                this.queryParams.value1 = undefined;
+                this.queryParams.option1 = 'orderNumber';
+                this.queryParams.option3 = 'OrderTime';
+                this.queryParams.orderNumber = undefined;
+                this.queryParams.sourceWx = undefined;
+                this.queryParams.customerProfiling = undefined;
+                this.queryParams.salesmanUserId = undefined;
+                this.queryParams.principalUserId = undefined;
+                this.queryParams.orderState = undefined;
+                this.queryParams.startOrderTime = undefined;
+                this.queryParams.endOrderTime = undefined;
+                this.queryParams.startReleasedTime = undefined;
+                this.queryParams.endReleasedTime = undefined;
+                this.queryParams.value3 = [];
+                this.queryParams.pageNum = 1;
+
                 this.handleQuery();
             },
             // 多选框选中数据
@@ -602,14 +731,25 @@
             /** 修改按钮操作 */
             handleUpdate(row) {
                 this.reset();
-                const roleId = row.roleId || this.ids;
+                this.customerForm = Object.assign({}, row, {
+                    projectSummaryDictCode: String(row.projectSummaryDictCode),
+                });
                 this.open = true;
                 this.title = '编辑客户';
             },
             handleOrder(type, row) {
-                this.title = type == 'finish' ? '结单' : '派单';
+                this.detailsForm = Object.assign({}, row, {
+                    totalAmount: row.totalAmount.toFixed(2),
+                    paidAmount: row.paidAmount.toFixed(2),
+                    principalUserId:
+                        // type == 'send' ? undefined : row.principalUserId ? row.principalUserId : '暂无负责人',
+                        row.principalUserId ? row.principalUserId : type == 'send' ? undefined : '暂无负责人',
+                    remark: undefined,
+                    amount: undefined,
+                });
+                this.title = type == 'finish' ? '结单' : type == 'send' ? '派单' : '追加';
                 this.openDataScope = true;
-                this.isPrincipal = type == 'finish';
+                this.isPrincipal = type !== 'send';
             },
 
             // 取消按钮（数据权限）
@@ -620,33 +760,42 @@
             // 表单重置
             reset() {
                 this.customerForm = {
-                    customerInfo: undefined,
-                    peojectInfo: undefined,
-                    wechat: undefined,
-                    num: undefined,
-                    payMoney: undefined,
-                    createTime: undefined,
-                    completeTime: undefined,
-                    staffId: undefined,
-                    staffWechat: undefined,
-                    remark: undefined,
+                    customerProfiling: undefined, //客户概况
+                    projectSummaryDictCode: undefined, //项目概况
+                    projectSummaryLable: undefined, //项目概况
+                    customerWx: undefined, //客户微信
+                    totalAmount: undefined, //交易金额
+                    paidAmount: undefined, //已付款
+                    finalPayment: undefined, //未付款
+                    orderTime: undefined, //下单日期
+                    releasedTime: undefined, //交付日期
+                    sourceWx: undefined, //接单微信
+                    salesmanUserId: undefined, //业务员
+                    remark: undefined, //备注
                 };
-                this.resetForm('form');
+                this.resetForm('customerForm');
             },
-
+            // 保存新增和编辑客户订单
             submitForm: function () {
-                this.$refs['form'].validate(valid => {
+                this.$refs['customerForm'].validate(valid => {
                     if (valid) {
-                        if (this.form.roleId != undefined) {
-                            this.form.menuIds = this.getMenuAllCheckedKeys();
-                            updateRole(this.form).then(response => {
+                        if (this.customerForm.id != undefined) {
+                            // this.form.menuIds = this.getMenuAllCheckedKeys();
+                            // updateRole(this.form).then(response => {
+                            //     this.$modal.msgSuccess('修改成功');
+                            //     this.open = false;
+                            //     this.getList();
+                            // });
+                            API.editOrder(this.customerForm).then(res => {
                                 this.$modal.msgSuccess('修改成功');
                                 this.open = false;
                                 this.getList();
                             });
                         } else {
-                            this.form.menuIds = this.getMenuAllCheckedKeys();
-                            addRole(this.form).then(response => {
+                            this.customerForm.projectSummaryLable = this.$store.getters.projectSummaryList.find(
+                                item => item.dictValue == this.customerForm.projectSummaryDictCode,
+                            ).dictLabel;
+                            API.addOrder(this.customerForm).then(res => {
                                 this.$modal.msgSuccess('新增成功');
                                 this.open = false;
                                 this.getList();
@@ -662,10 +811,44 @@
             },
             /** 提交按钮（数据权限） */
             submitDataScope: function () {
-                if (this.form.roleId != undefined) {
-                    this.form.deptIds = this.getDeptAllCheckedKeys();
-                    dataScope(this.form).then(response => {
-                        this.$modal.msgSuccess('修改成功');
+                if (this.title == '结单') {
+                    const params = {
+                        id: this.detailsForm.id,
+
+                        remark: this.detailsForm.remark,
+                    };
+                    API.statementOfAccount(params).then(res => {
+                        this.$modal.msgSuccess('结单成功');
+                        this.openDataScope = false;
+                        this.getList();
+                    });
+                } else if (this.title == '派单') {
+                    if (this.detailsForm.principalUserId == undefined) {
+                        this.$modal.msgError('请选择派单人员');
+                        return;
+                    }
+                    const params = {
+                        id: this.detailsForm.id,
+                        principalUserId: this.detailsForm.principalUserId,
+                        remark: this.detailsForm.remark,
+                    };
+                    API.sendOrder(params).then(res => {
+                        this.$modal.msgSuccess('派单成功');
+                        this.openDataScope = false;
+                        this.getList();
+                    });
+                } else if (this.title == '追加') {
+                    if (this.detailsForm.amount == undefined) {
+                        this.$modal.msgError('请输入追加金额');
+                        return;
+                    }
+                    const params = {
+                        id: this.detailsForm.id,
+                        amount: this.detailsForm.amount,
+                        remark: this.detailsForm.remark,
+                    };
+                    API.additionalAmount(params).then(res => {
+                        this.$modal.msgSuccess('追加成功');
                         this.openDataScope = false;
                         this.getList();
                     });
@@ -676,17 +859,16 @@
                 this.$router.push({
                     path: '/customer/CustomerDetail',
                     query: {
-                        id: row.roleId,
+                        details: JSON.stringify(row),
                     },
                 });
             },
             /** 删除按钮操作 */
             handleDelete(row) {
-                const roleIds = row.roleId || this.ids;
                 this.$modal
                     .confirm('是否确认删除？')
                     .then(function () {
-                        return delRole(roleIds);
+                        return API.removeOrder(row.id);
                     })
                     .then(() => {
                         this.getList();
@@ -694,17 +876,31 @@
                     })
                     .catch(() => {});
             },
-            handleCompelete() {
+            handleCompelete(row) {
                 this.$modal
                     .confirm('是否完成此客户的订单？')
                     .then(function () {
-                        return delRole(roleIds);
+                        return API.completeOrder({ id: row.id });
                     })
                     .then(() => {
                         this.getList();
-                        this.$modal.msgSuccess('已完成');
+                        this.$modal.msgSuccess('操作成功');
                     })
                     .catch(() => {});
+            },
+            handleCancel(row) {
+                this.$modal
+                    .confirm('是否取消完成此客户的订单？')
+                    .then(function () {
+                        return API.cancelOrder({ id: row.id });
+                    })
+                    .then(() => {
+                        this.getList();
+                        this.$modal.msgSuccess('操作成功');
+                    })
+                    .catch(() => {
+                        console.log('取消');
+                    });
             },
             /** 导出按钮操作 */
             handleExport() {

@@ -20,7 +20,7 @@ export function fetchMonthlyEarningsStatistics(data) {
 export function fetchCustomerStatistics() {
     return request({
         url: '/system/statistics/list',
-        method: 'get',
+        method: 'post',
     });
 }
 

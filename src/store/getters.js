@@ -17,7 +17,7 @@ const getters = {
     sidebarRouters: state => state.permission.sidebarRouters,
     salesmanUserList: state => state.user.salesmanUserList,
     principalUserList: state => state.user.principalUserList,
-    statusList: state => state.user.statusList,
+    projectSummaryList: state => state.user.projectSummaryList,
     // statusOptions: state => state.user.statusOptions,
 };
 export default getters;
