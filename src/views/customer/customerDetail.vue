@@ -48,15 +48,15 @@
 
                         <div class="flex-wrap lable-item">
                             <div class="label-box">下单日期：</div>
-                            <div class="vlue-box">1111</div>
+                            <div class="vlue-box">{{ baseDetail.orderTime }}</div>
                         </div>
                         <div class="flex-wrap lable-item">
                             <div class="label-box">交付日期：</div>
-                            <div class="vlue-box">1111</div>
+                            <div class="vlue-box">{{ baseDetail.releasedTime }}</div>
                         </div>
                         <div class="flex-wrap lable-item">
                             <div class="label-box">完成时间：</div>
-                            <div class="vlue-box">1111</div>
+                            <div class="vlue-box">{{}}</div>
                         </div>
                     </el-row>
                     <el-divider content-position="left">系统信息</el-divider>
