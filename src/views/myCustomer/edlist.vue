@@ -1,61 +1,49 @@
 <template>
     <div class="app-container edlist-wrap">
         <el-row class="search-box flex-wrap flex-hh mb20" v-show="showSearch">
-            <el-row :gutter="20" class="w100">
-                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
+            <el-row class="w100">
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
                     <div class="label-box">
-                        <el-select
-                            v-model="queryParams.option1"
-                            @change="
-                                e => {
-                                    optionSelectChange(e, 'value1');
-                                }
-                            "
-                        >
-                            <el-option label="单号" value="orderNumber"> </el-option>
-                            <el-option label="接单微信号" value="sourceWx"> </el-option>
-                            <el-option label="客户概况" value="customerProfiling"> </el-option>
-                        </el-select>
+                        <div class="lael-input">单号：</div>
                     </div>
                     <div class="vlue-box">
                         <el-input
-                            v-model="queryParams.value1"
+                            v-model="queryParams.orderNumber"
                             placeholder="请输入内容"
                             clearable
                             style="width: 240px"
                         />
                     </div>
                 </el-col>
-                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="12">
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
                     <div class="label-box">
-                        <el-select
-                            v-model="queryParams.option3"
-                            @change="
-                                e => {
-                                    optionSelectChange(e, 'value3');
-                                }
-                            "
-                        >
-                            <el-option label="下单日期" value="OrderTime"> </el-option>
-                            <el-option label="交付日期" value="ReleasedTime"> </el-option>
-                        </el-select>
+                        <div class="lael-input">接单微信号：</div>
                     </div>
                     <div class="vlue-box">
-                        <el-date-picker
-                            v-model="queryParams.value3"
-                            type="datetimerange"
-                            range-separator="至"
-                            start-placeholder="开始日期"
-                            end-placeholder="结束日期"
-                            align="right"
-                            value-format="yyyy-MM-dd HH:mm:ss"
-                        >
-                        </el-date-picker>
+                        <el-input
+                            v-model="queryParams.sourceWx"
+                            placeholder="请输入内容"
+                            clearable
+                            style="width: 240px"
+                        />
+                    </div>
+                </el-col>
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
+                    <div class="label-box">
+                        <div class="lael-input">客户概况：</div>
+                    </div>
+                    <div class="vlue-box">
+                        <el-input
+                            v-model="queryParams.customerProfiling"
+                            placeholder="请输入内容"
+                            clearable
+                            style="width: 240px"
+                        />
                     </div>
                 </el-col>
             </el-row>
             <el-row class="w100">
-                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
                     <div class="label-box">
                         <div class="lael-input">业务员：</div>
                     </div>
@@ -75,7 +63,7 @@
                         </el-select>
                     </div>
                 </el-col>
-                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
                     <div class="label-box">
                         <div class="lael-input">负责人：</div>
                     </div>
@@ -95,7 +83,7 @@
                         </el-select>
                     </div>
                 </el-col>
-                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
                     <div class="label-box">
                         <div class="lael-input">状态：</div>
                     </div>
@@ -110,7 +98,7 @@
                         </el-select>
                     </div>
                 </el-col>
-                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
                     <div class="label-box">
                         <div class="lael-input">项目概况：</div>
                     </div>
@@ -128,6 +116,42 @@
                             >
                             </el-option>
                         </el-select>
+                    </div>
+                </el-col>
+            </el-row>
+            <el-row class="w100">
+                <el-col class="flex-box flex-wrap" :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
+                    <div class="label-box">
+                        <div class="lael-input">下单日期：</div>
+                    </div>
+                    <div class="vlue-box">
+                        <el-date-picker
+                            v-model="queryParams.OrderTime"
+                            type="datetimerange"
+                            range-separator="至"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期"
+                            align="right"
+                            value-format="yyyy-MM-dd HH:mm:ss"
+                        >
+                        </el-date-picker>
+                    </div>
+                </el-col>
+                <el-col class="flex-box flex-wrap" :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
+                    <div class="label-box">
+                        <div class="lael-input">交付日期：</div>
+                    </div>
+                    <div class="vlue-box">
+                        <el-date-picker
+                            v-model="queryParams.ReleasedTime"
+                            type="datetimerange"
+                            range-separator="至"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期"
+                            align="right"
+                            value-format="yyyy-MM-dd HH:mm:ss"
+                        >
+                        </el-date-picker>
                     </div>
                 </el-col>
             </el-row>
