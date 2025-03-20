@@ -90,82 +90,30 @@ export const constantRoutes = [
             },
         ],
     },
-    {
-        path: '/customer',
-        name: 'Customer',
-        component: Layout,
-        redirect: 'noredirect',
-        meta: { title: '客户管理', icon: 'user' },
-        children: [
-            {
-                hidden: false,
-                path: 'CustomerList',
-                component: () => import('@/views/customer/customerList'),
-                name: 'CustomerList',
-                meta: { title: '客户列表1', icon: 'user' },
-            },
-            {
-                hidden: false,
-                path: 'CustomerList',
-                component: () => import('@/views/customer/customerList'),
-                name: 'CustomerList',
-                meta: { title: '客户列表2', icon: 'user' },
-            },
-            {
-                hidden: true,
-                path: 'CustomerDetail',
-                component: () => import('@/views/customer/customerDetail'),
-                name: 'CustomerList',
-                meta: { title: '客户详情', icon: 'user' },
-            },
-        ],
-    },
-    {
-        path: '/mycustomer',
-        name: 'MyCustomer',
-        component: Layout,
-        redirect: 'noredirect',
-        meta: { title: '我的客户', icon: 'user' },
-        children: [
-            {
-                hidden: false,
-                path: 'IngList',
-                component: () => import('@/views/myCustomer/ingList'),
-                name: 'CustomerList',
-                meta: { title: '待完成', icon: 'user' },
-            },
-            {
-                hidden: false,
-                path: 'Edlist',
-                component: () => import('@/views/myCustomer/edlist'),
-                name: 'CustomerList',
-                meta: { title: '已完成', icon: 'user' },
-            },
-        ],
-    },
-    {
-        path: '/workPerformance',
-        name: 'WorkPerformance',
-        component: Layout,
-        redirect: 'noredirect',
-        meta: { title: '绩效', icon: 'user' },
-        children: [
-            {
-                hidden: false,
-                path: 'principal',
-                component: () => import('@/views/workPerformance/principal'),
-                name: 'Principal',
-                meta: { title: '负责人绩效', icon: 'user' },
-            },
-            {
-                hidden: false,
-                path: 'staff',
-                component: () => import('@/views/workPerformance/staff'),
-                name: 'Staff',
-                meta: { title: '业务员绩效', icon: 'user' },
-            },
-        ],
-    },
+
+    // {
+    //     path: '/workPerformance',
+    //     name: 'WorkPerformance',
+    //     component: Layout,
+    //     redirect: 'noredirect',
+    //     meta: { title: '绩效', icon: 'user' },
+    //     children: [
+    //         {
+    //             hidden: false,
+    //             path: 'principal',
+    //             component: () => import('@/views/workPerformance/principal'),
+    //             name: 'Principal',
+    //             meta: { title: '负责人绩效', icon: 'user' },
+    //         },
+    //         {
+    //             hidden: false,
+    //             path: 'staff',
+    //             component: () => import('@/views/workPerformance/staff'),
+    //             name: 'Staff',
+    //             meta: { title: '业务员绩效', icon: 'user' },
+    //         },
+    //     ],
+    // },
 ];
 
 // 动态路由，基于用户权限动态去加载

@@ -1,75 +1,135 @@
 <template>
-    <div class="app-container inglist-wrap">
+    <div class="app-container edlist-wrap">
         <el-row class="search-box flex-wrap flex-hh mb20" v-show="showSearch">
-            <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
-                <div class="label-box">
-                    <el-select v-model="queryParams.option1" @change="optionSelectChange('value1')">
-                        <el-option label="单号" :value="1"> </el-option>
-                        <el-option label="接单微信号" :value="2"> </el-option>
-                        <el-option label="客户概况" :value="3"> </el-option>
-                        <el-option label="接单员" :value="4"> </el-option>
-                    </el-select>
-                </div>
-                <div class="vlue-box">
-                    <el-input
-                        v-model="queryParams.value1"
-                        placeholder="请输入内容"
-                        clearable
-                        style="width: 240px"
-                        @keyup.enter.native="handleQuery"
-                    />
-                </div>
-            </el-col>
-
-            <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
-                <div class="label-box">
-                    <div class="lael-input">业务员：</div>
-                </div>
-                <div class="vlue-box">
-                    <el-select v-model="queryParams.status" placeholder="请选择业务员" clearable style="width: 240px">
-                        <el-option
-                            v-for="dict in staffOptions"
-                            :key="dict.value"
-                            :label="dict.label"
-                            :value="dict.value"
+            <el-row :gutter="20" class="w100">
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
+                    <div class="label-box">
+                        <el-select
+                            v-model="queryParams.option1"
+                            @change="
+                                e => {
+                                    optionSelectChange(e, 'value1');
+                                }
+                            "
+                        >
+                            <el-option label="单号" value="orderNumber"> </el-option>
+                            <el-option label="接单微信号" value="sourceWx"> </el-option>
+                            <el-option label="客户概况" value="customerProfiling"> </el-option>
+                        </el-select>
+                    </div>
+                    <div class="vlue-box">
+                        <el-input
+                            v-model="queryParams.value1"
+                            placeholder="请输入内容"
+                            clearable
+                            style="width: 240px"
                         />
-                    </el-select>
-                </div>
-            </el-col>
-            <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
-                <div class="label-box">
-                    <div class="lael-input">状态：</div>
-                </div>
-                <div class="vlue-box">
-                    <el-select v-model="queryParams.status" placeholder="请选择状态" clearable style="width: 240px">
-                        <el-option
-                            v-for="dict in statusOptions"
-                            :key="dict.value"
-                            :label="dict.label"
-                            :value="dict.value"
-                        />
-                    </el-select>
-                </div>
-            </el-col>
-
-            <el-row class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
-                <div class="label-box">
-                    <el-select v-model="queryParams.option3">
-                        <el-option label="下单日期" :value="1"> </el-option>
-                        <el-option label="交付日期" :value="2"> </el-option>
-                    </el-select>
-                </div>
-                <div class="vlue-box">
-                    <el-date-picker
-                        v-model="queryParams.value3"
-                        style="width: 240px"
-                        value-format="yyyy-MM-dd"
-                        type="daterange"
-                        range-separator="-"
-                        start-placeholder="开始日期"
-                        end-placeholder="结束日期"
-                    ></el-date-picker>
-                </div>
+                    </div>
+                </el-col>
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="12">
+                    <div class="label-box">
+                        <el-select
+                            v-model="queryParams.option3"
+                            @change="
+                                e => {
+                                    optionSelectChange(e, 'value3');
+                                }
+                            "
+                        >
+                            <el-option label="下单日期" value="OrderTime"> </el-option>
+                            <el-option label="交付日期" value="ReleasedTime"> </el-option>
+                        </el-select>
+                    </div>
+                    <div class="vlue-box">
+                        <el-date-picker
+                            v-model="queryParams.value3"
+                            type="datetimerange"
+                            range-separator="至"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期"
+                            align="right"
+                            value-format="yyyy-MM-dd HH:mm:ss"
+                        >
+                        </el-date-picker>
+                    </div>
+                </el-col>
+            </el-row>
+            <el-row class="w100">
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
+                    <div class="label-box">
+                        <div class="lael-input">业务员：</div>
+                    </div>
+                    <div class="vlue-box">
+                        <el-select
+                            v-model="queryParams.salesmanUserId"
+                            placeholder="请选择业务员"
+                            clearable
+                            style="width: 240px"
+                        >
+                            <el-option
+                                v-for="dict in $store.getters.salesmanUserList"
+                                :key="dict.userId"
+                                :label="dict.userName"
+                                :value="dict.userId"
+                            />
+                        </el-select>
+                    </div>
+                </el-col>
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
+                    <div class="label-box">
+                        <div class="lael-input">负责人：</div>
+                    </div>
+                    <div class="vlue-box">
+                        <el-select
+                            v-model="queryParams.principalUserId"
+                            placeholder="请选择负责人"
+                            clearable
+                            style="width: 240px"
+                        >
+                            <el-option
+                                v-for="dict in $store.getters.principalUserList"
+                                :key="dict.userId"
+                                :label="dict.userName"
+                                :value="dict.userId"
+                            />
+                        </el-select>
+                    </div>
+                </el-col>
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
+                    <div class="label-box">
+                        <div class="lael-input">状态：</div>
+                    </div>
+                    <div class="vlue-box">
+                        <el-select v-model="queryParams.orderState" placeholder="请选择状态" style="width: 240px">
+                            <el-option
+                                v-for="dict in orderSateOptions"
+                                :key="dict.value"
+                                :label="dict.label"
+                                :value="dict.value"
+                            />
+                        </el-select>
+                    </div>
+                </el-col>
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
+                    <div class="label-box">
+                        <div class="lael-input">项目概况：</div>
+                    </div>
+                    <div class="vlue-box">
+                        <el-select
+                            v-model="queryParams.projectSummaryDictCode"
+                            placeholder="请选择项目概况"
+                            style="width: 240px"
+                        >
+                            <el-option
+                                v-for="item in $store.getters.projectSummaryList"
+                                :key="item.dictValue"
+                                :label="item.dictLabel"
+                                :value="item.dictValue"
+                            >
+                            </el-option>
+                        </el-select>
+                    </div>
+                </el-col>
             </el-row>
 
             <el-row class="mt20 flex-wrap search-btn w100">
@@ -81,29 +141,25 @@
             <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
         </el-row>
         <!-- 表格 -->
-        <el-table v-loading="loading" :data="roleList">
+        <el-table v-loading="loading" :data="edList">
             <el-table-column type="selection" width="55" align="center" />
-            <el-table-column fixed label="单号" prop="roleId" width="120" />
-            <el-table-column label="客户概况" align="center" prop="roleName" width="250" />
-            <el-table-column label="项目概况" align="center" prop="roleKey" width="250" />
+            <el-table-column fixed label="单号" prop="orderNumber" width="120" />
+            <el-table-column label="客户概况" align="center" prop="customerProfiling" width="200" />
+            <el-table-column label="项目概况" align="center" prop="projectSummaryLable" width="200" />
 
             <el-table-column label="状态" align="center" width="100">
                 <template slot-scope="scope">
-                    <el-switch
-                        v-model="scope.row.status"
-                        active-value="0"
-                        inactive-value="1"
-                        @change="handleStatusChange(scope.row)"
-                    ></el-switch>
+                    <el-tag :type="orderStateType(scope.row.orderState)">
+                        {{ orderState(scope.row.orderState) }}</el-tag
+                    >
                 </template>
             </el-table-column>
-            <el-table-column label="下单日期" align="center" prop="roleId" width="150" />
-            <el-table-column label="交付日期" align="center" prop="roleId" width="150" />
-            <el-table-column label="接单微信" prop="roleId" />
-            <el-table-column label="业务员" prop="roleId" />
-            <el-table-column label="负责人" prop="roleId" />
-            <el-table-column label="结单时间" prop="roleId" />
-            <el-table-column label="创建时间" prop="roleId" />
+            <el-table-column label="下单日期" align="center" prop="orderTime" width="100" />
+            <el-table-column label="交付日期" align="center" prop="releasedTime" width="100" />
+            <el-table-column label="接单微信" align="center" prop="sourceWx" width="150" />
+            <el-table-column label="业务员" prop="salemanUserName" />
+            <el-table-column label="负责人" prop="principalUserId" />
+            <el-table-column label="创建日期" align="center" prop="createTime" width="100" />
 
             <el-table-column
                 fixed="right"
@@ -112,13 +168,16 @@
                 class-name="small-padding fixed-width"
                 width="200"
             >
-                <template slot-scope="scope" v-if="scope.row.roleId !== 1">
-                    <el-button size="mini" type="text" icon="el-icon-view" @click="handleCompelete(scope.row)">
-                        取消完成
+                <template slot-scope="scope">
+                    <el-button
+                        v-show="scope.row.orderState == 4"
+                        size="mini"
+                        type="text"
+                        icon="el-icon-circle-close"
+                        @click="handleCancel(scope.row)"
+                    >
+                        取消
                     </el-button>
-                    <!-- <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)">
-                        设置优先级
-                    </el-button> -->
                 </template>
             </el-table-column>
         </el-table>
@@ -134,80 +193,163 @@
 </template>
 
 <script>
+    import API from '@/api/myCustomerApi';
+    import API2 from '@/api/customerApi';
+    import { orderSateMeta, metaToOptions } from '@/utils/meta';
     export default {
-        name: 'ingList',
+        name: 'edList',
         components: {},
         data() {
             return {
                 // 遮罩层
                 loading: false,
                 showSearch: true,
-                // 角色表格数据
-                roleList: [],
+                edList: [],
                 total: 0,
                 // 查询参数
                 queryParams: {
                     pageNum: 1,
                     pageSize: 10,
-                    option1: 1,
+                    option1: 'orderNumber',
                     value1: undefined,
-                    option2: 1,
-                    value2: undefined,
-                    option3: 1,
+                    option3: 'OrderTime',
                     value3: [],
-                    status: undefined,
+
+                    orderState: orderSateMeta.Completedorder.value, //已完成
+                    orderNumber: undefined, //单号
+                    customerProfiling: undefined, //客户概况
+                    projectSummaryDictCode: undefined, //项目概况
+                    projectSummaryDictCode: undefined, //项目概况
+                    startOrderTime: undefined, //下单日期
+                    endOrderTime: undefined, //下单日期
+                    OrderTime: [],
+                    principalUserId: undefined, //负责人
+                    startReleasedTime: undefined, //交付日期
+                    endReleasedTime: undefined, //交付日期
+                    ReleasedTime: [], //交付日期
+                    sourceWx: undefined, //接单微信号
+                    salesmanUserId: undefined, //业务员
                 },
-                statusOptions: [{}],
-                staffOptions: [
-                    {
-                        value: '1',
-                        label: '张三',
-                    },
-                    {
-                        value: '2',
-                        label: '李四',
-                    },
-                    {
-                        value: '3',
-                        label: '王五',
-                    },
-                ],
             };
+        },
+        computed: {
+            orderSateOptions() {
+                const arr = metaToOptions(orderSateMeta);
+                return arr.filter(item => {
+                    return item.value == 4 || item.value == 5;
+                });
+            },
+            orderState() {
+                return value => {
+                    return this.orderSateOptions.find(item => item.value == value)?.label;
+                };
+            },
+            orderStateType() {
+                return value => {
+                    if (value == 2) {
+                        return 'warning';
+                    } else if (value == 3) {
+                        return 'danger';
+                    } else if (value == 4) {
+                        return 'success';
+                    } else if (value == 5) {
+                        return 'info';
+                    }
+                };
+            },
+        },
+        created() {
+            console.log('created');
+            this.getList();
         },
         methods: {
             getList() {
                 this.loading = true;
-                listRole(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-                    this.roleList = response.rows;
-                    this.total = response.total;
+                API.fetchList(this.queryParams).then(res => {
+                    this.edList = res.rows;
+                    this.total = res.total;
                     this.loading = false;
                 });
             },
-            optionSelectChange(key) {
-                this.queryParams[key] = undefined;
+            optionSelectChange(key, valueKey) {
+                if (key == 'orderNumber') {
+                    this.queryParams.sourceWx = undefined;
+                    this.queryParams.customerProfiling = undefined;
+                } else if (key == 'sourceWx') {
+                    this.queryParams.orderNumber = undefined;
+                    this.queryParams.customerProfiling = undefined;
+                } else if (key == 'customerProfiling') {
+                    this.queryParams.orderNumber = undefined;
+                    this.queryParams.sourceWx = undefined;
+                } else if (key == 'OrderTime') {
+                    this.queryParams.ReleasedTime = undefined;
+                } else if (key == 'ReleasedTime') {
+                    this.queryParams.OrderTime = undefined;
+                }
+
+                this.queryParams[key] = this.queryParams[valueKey];
+                console.log('this.queryParams', this.queryParams[key]);
             },
+            /** 搜索按钮操作 */
             /** 搜索按钮操作 */
             handleQuery() {
                 this.queryParams.pageNum = 1;
+                this.queryParams.option3 == 'OrderTime' ? (this.queryParams.OrderTime = this.queryParams.value3) : '';
+                this.queryParams.option3 == 'ReleasedTime'
+                    ? (this.queryParams.ReleasedTime = this.queryParams.value3)
+                    : '';
+                this.queryParams.startOrderTime = this.queryParams.OrderTime?.[0] || undefined;
+                this.queryParams.endOrderTime = this.queryParams.OrderTime?.[1] || undefined;
+
+                this.queryParams.startReleasedTime = this.queryParams.ReleasedTime?.[0] || undefined;
+                this.queryParams.endReleasedTime = this.queryParams.ReleasedTime?.[1] || undefined;
+
+                this.queryParams.option1 == 'orderNumber'
+                    ? (this.queryParams.orderNumber = this.queryParams.value1)
+                    : '';
+                this.queryParams.option1 == 'sourceWx' ? (this.queryParams.sourceWx = this.queryParams.value1) : '';
+                this.queryParams.option1 == 'customerProfiling'
+                    ? (this.queryParams.customerProfiling = this.queryParams.value1)
+                    : '';
                 this.getList();
             },
             /** 重置按钮操作 */
             resetQuery() {
-                this.dateRange = [];
-                this.resetForm('queryForm');
+                this.queryParams.OrderTime = [];
+                this.queryParams.ReleasedTime = [];
+                this.queryParams.value1 = undefined;
+                this.queryParams.option1 = 'orderNumber';
+                this.queryParams.option3 = 'OrderTime';
+                this.queryParams.orderNumber = undefined;
+                this.queryParams.sourceWx = undefined;
+                this.queryParams.customerProfiling = undefined;
+                this.queryParams.salesmanUserId = undefined;
+                this.queryParams.principalUserId = undefined;
+                this.queryParams.startOrderTime = undefined;
+                this.queryParams.endOrderTime = undefined;
+                this.queryParams.startReleasedTime = undefined;
+                this.queryParams.endReleasedTime = undefined;
+                this.queryParams.orderState = orderSateMeta.Completedorder.value;
+                this.queryParams.projectSummaryDictCode = undefined;
+                this.queryParams.value3 = [];
+                this.queryParams.pageNum = 1;
+
                 this.handleQuery();
             },
-            handleCompelete() {
+
+            handleCancel(row) {
                 this.$modal
-                    .confirm('是否完成此客户的订单？')
+                    .confirm('是否取消完成此客户的订单？')
                     .then(function () {
-                        return delRole(roleIds);
+                        return API2.cancelOrder({ id: row.id });
                     })
                     .then(() => {
                         this.getList();
-                        this.$modal.msgSuccess('已完成');
+                        this.$modal.msgSuccess('操作成功');
                     })
-                    .catch(() => {});
+                    .catch(() => {
+                        console.log('取消');
+                    });
             },
         },
     };

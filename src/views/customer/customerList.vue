@@ -1,110 +1,142 @@
 <template>
     <div class="app-container">
         <!-- 查询条件 -->
-        <!-- {{ orderSateOptions }} -->
         <el-row class="search-box flex-wrap flex-hh mb20" v-show="showSearch">
-            <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
-                <div class="label-box">
-                    <el-select
-                        v-model="queryParams.option1"
-                        @change="
-                            e => {
-                                optionSelectChange(e, 'value1');
-                            }
-                        "
-                    >
-                        <el-option label="单号" value="orderNumber"> </el-option>
-                        <el-option label="接单微信号" value="sourceWx"> </el-option>
-                        <el-option label="客户概况" value="customerProfiling"> </el-option>
-                    </el-select>
-                </div>
-                <div class="vlue-box">
-                    <el-input v-model="queryParams.value1" placeholder="请输入内容" clearable style="width: 240px" />
-                </div>
-            </el-col>
+            <el-row class="w100">
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
+                    <div class="label-box">
+                        <el-select
+                            v-model="queryParams.option1"
+                            @change="
+                                e => {
+                                    optionSelectChange(e, 'value1');
+                                }
+                            "
+                        >
+                            <el-option label="单号" value="orderNumber"> </el-option>
+                            <el-option label="接单微信号" value="sourceWx"> </el-option>
+                            <el-option label="客户概况" value="customerProfiling"> </el-option>
+                        </el-select>
+                    </div>
+                    <div class="vlue-box">
+                        <el-input
+                            v-model="queryParams.value1"
+                            placeholder="请输入内容"
+                            clearable
+                            style="width: 240px"
+                        />
+                    </div>
+                </el-col>
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
+                    <div class="label-box">
+                        <el-select
+                            v-model="queryParams.option3"
+                            @change="
+                                e => {
+                                    optionSelectChange(e, 'value3');
+                                }
+                            "
+                        >
+                            <el-option label="下单日期" value="OrderTime"> </el-option>
+                            <el-option label="交付日期" value="ReleasedTime"> </el-option>
+                        </el-select>
+                    </div>
+                    <div class="vlue-box">
+                        <el-date-picker
+                            v-model="queryParams.value3"
+                            type="datetimerange"
+                            range-separator="至"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期"
+                            align="right"
+                            value-format="yyyy-MM-dd HH:mm:ss"
+                        >
+                        </el-date-picker>
+                    </div>
+                </el-col>
+            </el-row>
 
-            <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
-                <div class="label-box">
-                    <div class="lael-input">业务员：</div>
-                </div>
-                <div class="vlue-box">
-                    <el-select
-                        v-model="queryParams.salesmanUserId"
-                        placeholder="请选择业务员"
-                        clearable
-                        style="width: 240px"
-                    >
-                        <el-option
-                            v-for="dict in $store.getters.salesmanUserList"
-                            :key="dict.userId"
-                            :label="dict.userName"
-                            :value="dict.userId"
-                        />
-                    </el-select>
-                </div>
-            </el-col>
-            <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
-                <div class="label-box">
-                    <div class="lael-input">负责人：</div>
-                </div>
-                <div class="vlue-box">
-                    <el-select
-                        v-model="queryParams.principalUserId"
-                        placeholder="请选择负责人"
-                        clearable
-                        style="width: 240px"
-                    >
-                        <el-option
-                            v-for="dict in $store.getters.principalUserList"
-                            :key="dict.userId"
-                            :label="dict.userName"
-                            :value="dict.userId"
-                        />
-                    </el-select>
-                </div>
-            </el-col>
-            <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
-                <div class="label-box">
-                    <div class="lael-input">状态：</div>
-                </div>
-                <div class="vlue-box">
-                    <el-select v-model="queryParams.orderState" placeholder="请选择状态" clearable style="width: 240px">
-                        <el-option
-                            v-for="dict in statusOptions"
-                            :key="dict.value"
-                            :label="dict.label"
-                            :value="dict.value"
-                        />
-                    </el-select>
-                </div>
-            </el-col>
-
-            <el-row class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
-                <div class="label-box">
-                    <el-select
-                        v-model="queryParams.option3"
-                        @change="
-                            e => {
-                                optionSelectChange(e, 'value3');
-                            }
-                        "
-                    >
-                        <el-option label="下单日期" value="OrderTime"> </el-option>
-                        <el-option label="交付日期" value="ReleasedTime"> </el-option>
-                    </el-select>
-                </div>
-                <div class="vlue-box">
-                    <el-date-picker
-                        v-model="queryParams.value3"
-                        type="datetimerange"
-                        range-separator="至"
-                        start-placeholder="开始日期"
-                        end-placeholder="结束日期"
-                        align="right"
-                        value-format="yyyy-MM-dd HH:mm:ss"
-                    >
-                    </el-date-picker>
-                </div>
+            <el-row class="w100">
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
+                    <div class="label-box">
+                        <div class="lael-input">业务员：</div>
+                    </div>
+                    <div class="vlue-box">
+                        <el-select
+                            v-model="queryParams.salesmanUserId"
+                            placeholder="请选择业务员"
+                            clearable
+                            style="width: 240px"
+                        >
+                            <el-option
+                                v-for="dict in $store.getters.salesmanUserList"
+                                :key="dict.userId"
+                                :label="dict.userName"
+                                :value="dict.userId"
+                            />
+                        </el-select>
+                    </div>
+                </el-col>
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
+                    <div class="label-box">
+                        <div class="lael-input">负责人：</div>
+                    </div>
+                    <div class="vlue-box">
+                        <el-select
+                            v-model="queryParams.principalUserId"
+                            placeholder="请选择负责人"
+                            clearable
+                            style="width: 240px"
+                        >
+                            <el-option
+                                v-for="dict in $store.getters.principalUserList"
+                                :key="dict.userId"
+                                :label="dict.userName"
+                                :value="dict.userId"
+                            />
+                        </el-select>
+                    </div>
+                </el-col>
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
+                    <div class="label-box">
+                        <div class="lael-input">状态：</div>
+                    </div>
+                    <div class="vlue-box">
+                        <el-select
+                            v-model="queryParams.orderState"
+                            placeholder="请选择状态"
+                            clearable
+                            style="width: 240px"
+                        >
+                            <el-option
+                                v-for="dict in statusOptions"
+                                :key="dict.value"
+                                :label="dict.label"
+                                :value="dict.value"
+                            />
+                        </el-select>
+                    </div>
+                </el-col>
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
+                    <div class="label-box">
+                        <div class="lael-input">项目概况：</div>
+                    </div>
+                    <div class="vlue-box">
+                        <el-select
+                            v-model="queryParams.projectSummaryDictCode"
+                            placeholder="请选择项目概况"
+                            style="width: 240px"
+                        >
+                            <el-option
+                                v-for="item in $store.getters.projectSummaryList"
+                                :key="item.dictValue"
+                                :label="item.dictLabel"
+                                :value="item.dictValue"
+                            >
+                            </el-option>
+                        </el-select>
+                    </div>
+                </el-col>
             </el-row>
 
             <el-row class="mt20 flex-wrap search-btn w100">
@@ -129,7 +161,7 @@
             <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
         </el-row>
         <!-- 表格 -->
-        <el-table v-loading="loading" :data="roleList" @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="customerOrderList" @selection-change="handleSelectionChange">
             <el-table-column type="selection" width="55" align="center" />
             <el-table-column fixed label="单号" prop="orderNumber" width="120" />
             <el-table-column label="客户概况" align="center" prop="customerProfiling" width="250" />
@@ -162,7 +194,7 @@
                 class-name="small-padding fixed-width"
                 width="200"
             >
-                <template slot-scope="scope" v-if="scope.row.roleId !== 1">
+                <template slot-scope="scope">
                     <!-- 按钮权限
 
                         详情：所有
@@ -486,8 +518,7 @@
                 showSearch: true,
                 // 总条数
                 total: 0,
-                // 角色表格数据
-                roleList: [],
+                customerOrderList: [],
                 // 弹出层标题
                 title: '',
                 // 是否显示弹出层
@@ -509,7 +540,7 @@
 
                     orderNumber: undefined, //单号
                     customerProfiling: undefined, //客户概况
-                    projectSummaryLable: undefined, //项目概况
+                    projectSummaryDictCode: undefined, //项目概况
                     orderState: undefined, //状态
                     startOrderTime: undefined, //下单日期
                     endOrderTime: undefined, //下单日期
@@ -643,17 +674,12 @@
             getList() {
                 this.loading = true;
                 API.fetchList(this.queryParams).then(res => {
-                    this.roleList = res.rows;
+                    this.customerOrderList = res.rows;
                     this.total = res.total;
                     this.loading = false;
                 });
             },
             optionSelectChange(key, valueKey) {
-                // console.log('key', key, valueKey);
-                // this.queryParams[key] = this.queryParams[valueKey];
-                // console.log('this.queryParams', this.queryParams[key]);
-
-                // this.queryParams.option1 == 'orderNumber';
                 if (key == 'orderNumber') {
                     this.queryParams.sourceWx = undefined;
                     this.queryParams.customerProfiling = undefined;
@@ -714,6 +740,7 @@
                 this.queryParams.endOrderTime = undefined;
                 this.queryParams.startReleasedTime = undefined;
                 this.queryParams.endReleasedTime = undefined;
+                this.queryParams.projectSummaryDictCode = undefined;
                 this.queryParams.value3 = [];
                 this.queryParams.pageNum = 1;
 
