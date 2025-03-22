@@ -318,32 +318,20 @@
             /** 搜索按钮操作 */
             handleQuery() {
                 this.queryParams.pageNum = 1;
-                this.queryParams.option3 == 'OrderTime' ? (this.queryParams.OrderTime = this.queryParams.value3) : '';
-                this.queryParams.option3 == 'ReleasedTime'
-                    ? (this.queryParams.ReleasedTime = this.queryParams.value3)
-                    : '';
+
                 this.queryParams.startOrderTime = this.queryParams.OrderTime?.[0] || undefined;
                 this.queryParams.endOrderTime = this.queryParams.OrderTime?.[1] || undefined;
 
                 this.queryParams.startReleasedTime = this.queryParams.ReleasedTime?.[0] || undefined;
                 this.queryParams.endReleasedTime = this.queryParams.ReleasedTime?.[1] || undefined;
 
-                this.queryParams.option1 == 'orderNumber'
-                    ? (this.queryParams.orderNumber = this.queryParams.value1)
-                    : '';
-                this.queryParams.option1 == 'sourceWx' ? (this.queryParams.sourceWx = this.queryParams.value1) : '';
-                this.queryParams.option1 == 'customerProfiling'
-                    ? (this.queryParams.customerProfiling = this.queryParams.value1)
-                    : '';
                 this.getList();
             },
             /** 重置按钮操作 */
             resetQuery() {
                 this.queryParams.OrderTime = [];
                 this.queryParams.ReleasedTime = [];
-                this.queryParams.value1 = undefined;
-                this.queryParams.option1 = 'orderNumber';
-                this.queryParams.option3 = 'OrderTime';
+
                 this.queryParams.orderNumber = undefined;
                 this.queryParams.sourceWx = undefined;
                 this.queryParams.customerProfiling = undefined;
@@ -355,7 +343,7 @@
                 this.queryParams.endReleasedTime = undefined;
                 this.queryParams.orderState = orderSateMeta.Completedorder.value;
                 this.queryParams.projectSummaryDictCode = undefined;
-                this.queryParams.value3 = [];
+
                 this.queryParams.pageNum = 1;
 
                 this.handleQuery();

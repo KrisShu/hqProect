@@ -6,7 +6,12 @@
                     <div class="lael-input">月份：</div>
                 </div>
                 <div class="vlue-box">
-                    <el-date-picker v-model="queryParams.year_month" type="month" placeholder="选择月">
+                    <el-date-picker
+                        value-format="yyyy-M"
+                        v-model="queryParams.year_month"
+                        type="month"
+                        placeholder="选择月"
+                    >
                     </el-date-picker>
                 </div>
             </el-col>
@@ -20,14 +25,14 @@
             <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
         </el-row>
         <!-- 表格 -->
-        <el-table show-summary v-loading="loading" :data="dataList">
+        <el-table show-summary :summary-method="summaryMethod" v-loading="loading" :data="dataList">
             <el-table-column type="selection" width="55" align="center" />
             <el-table-column fixed label="ID" prop="id" width="120" />
-            <el-table-column label="姓名" align="userName" prop="name" />
-            <el-table-column label="负责的客户" align="center" prop="roleKey">
+            <el-table-column label="姓名" align="center" prop="userName" />
+            <el-table-column label="负责的客户" align="center" prop="num">
                 <template slot="header" slot-scope="scope">
                     <el-tooltip class="item" effect="dark" content="都以本月结单了的客户计算" placement="top-start">
-                        <span><i class="el-icon-question"></i></span>
+                        <span>负责的客户<i class="el-icon-question"></i></span>
                     </el-tooltip>
                 </template>
             </el-table-column>
@@ -58,7 +63,14 @@
             :limit.sync="queryParams.pageSize"
             @pagination="getList"
         />
-        <el-dialog :title="title" :visible.sync="centerDialogVisible" width="30%" center>
+        <el-dialog
+            :close-on-click-modal="false"
+            :title="title"
+            :visible.sync="centerDialogVisible"
+            width="30%"
+            center
+            @close="closeAfter"
+        >
             <el-form :model="dataForm" status-icon :rules="rules" ref="dataForm" class="demo-dataForm">
                 <el-form-item label="" prop="value">
                     <el-input type="text" v-model="dataForm.value">
@@ -67,8 +79,8 @@
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="centerDialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="centerDialogVisible = false">确 定</el-button>
+                <el-button @click="cancelForm">取 消</el-button>
+                <el-button type="primary" @click="submitForm">确 定</el-button>
             </span>
         </el-dialog>
     </div>
@@ -97,19 +109,13 @@
                 loading: false,
                 showSearch: true,
                 // 角色表格数据
-                dataList: [
-                    {
-                        name: 'test',
-                        money: 1000,
-                        roleId: 1,
-                    },
-                ],
+                dataList: [],
                 total: 0,
                 // 查询参数
                 queryParams: {
                     pageNum: 1,
                     pageSize: 10,
-                    type: 2,
+                    type: 2, //业务员2
                     year_month: undefined,
                 },
                 centerDialogVisible: false,
@@ -120,10 +126,11 @@
                     value: [{ validator: validateValue, trigger: 'blur' }],
                 },
                 title: '修改基本工资',
+                unit: '元',
             };
         },
         created() {
-            // this.getList();
+            this.getList();
         },
         methods: {
             getList() {
@@ -139,58 +146,101 @@
             handleQuery() {
                 console.log(this.queryParams.year_month);
                 this.queryParams.pageNum = 1;
-                // this.getList();
+                // this.queryParams.year_month = this.queryParams.year_month
+                //     ? Number(this.queryParams.year_month)
+                //     : undefined;
+                const newArr = this.queryParams.year_month ? this.queryParams.year_month.split('-') : '';
+                if (newArr) {
+                    this.queryParams.year = newArr[0];
+                    this.queryParams.month = newArr[1];
+                } else {
+                    this.queryParams.year = undefined;
+                    this.queryParams.month = undefined;
+                }
+                this.getList();
             },
             /** 重置按钮操作 */
             resetQuery() {
                 this.queryParams.pageNum = 1;
                 this.queryParams.year_month = undefined;
+                this.queryParams.year = undefined;
+                this.queryParams.month = undefined;
                 this.handleQuery();
             },
-            changeMoneny(val) {
+            changeMoneny(data) {
+                this.dataForm = Object.assign({}, data, {
+                    value: data.basicWage,
+                });
+
                 this.centerDialogVisible = true;
                 this.unit = '元';
                 this.title = '修改基础工资';
-                // this.$prompt('请填写基础工资', '提示', {
-                //     confirmButtonText: '确定',
-                //     cancelButtonText: '取消',
-                //     inputValue: val,
-                //     inputPattern: /^\d+(\.\d{1,2})?$/,
-                //     inputErrorMessage: '请填写正确的格式',
-                // })
-                //     .then(({ value }) => {
-                //         this.$message({
-                //             type: 'success',
-                //             message: '你的邮箱是: ' + value,
-                //         });
-                //     })
-                //     .catch(() => {
-                //         this.$message({
-                //             type: 'info',
-                //             message: '取消输入',
-                //         });
-                //     });
             },
-            changeCommissionRate(val) {
-                this.$prompt('请填写绩效比例', '提示', {
-                    confirmButtonText: '确定',
-                    cancelButtonText: '取消',
-                    inputValue: val,
-                    inputPattern: /^\d+(\.\d{1,2})?$/,
-                    inputErrorMessage: '请填写正确的格式',
-                })
-                    .then(({ value }) => {
-                        this.$message({
-                            type: 'success',
-                            message: '你的邮箱是: ' + value,
+            changeCommissionRate(data) {
+                this.dataForm = Object.assign({}, data, {
+                    value: data.commissionRate,
+                });
+
+                this.centerDialogVisible = true;
+                this.unit = '%';
+                this.title = '修改提成比例';
+            },
+            closeAfter() {
+                this.$refs.dataForm.clearValidate();
+            },
+            cancelForm() {
+                this.centerDialogVisible = false;
+            },
+            submitForm() {
+                this.$refs.dataForm.validate(valid => {
+                    if (valid) {
+                        let apiPromise;
+                        if (this.title === '修改提成比例') {
+                            apiPromise = API.editCommissionRate({
+                                commissionRate: this.dataForm.value,
+                                id: this.dataForm.id,
+                            });
+                        } else if (this.title === '修改基础工资') {
+                            apiPromise = API.editBasicWage({
+                                basicWage: this.dataForm.value,
+                                id: this.dataForm.id,
+                            });
+                        }
+
+                        apiPromise.then(res => {
+                            this.$modal.msgSuccess('修改成功');
+                            this.getList();
+                            this.centerDialogVisible = false;
                         });
-                    })
-                    .catch(() => {
-                        this.$message({
-                            type: 'info',
-                            message: '取消输入',
-                        });
-                    });
+                    } else {
+                        console.log('error submit!!');
+                        return false;
+                    }
+                });
+            },
+            summaryMethod(param) {
+                const { columns, data } = param;
+
+                console.log('columns, data', columns, data);
+                const sums = [];
+                columns.forEach((column, index) => {
+                    if (index === 0) {
+                        sums[index] = '合计';
+                        return;
+                    }
+                    const values = data.map(item => Number(item[column.property]));
+                    if (column.property === 'num' || column.property === 'amount') {
+                        sums[index] = values.reduce((prev, curr) => {
+                            const value = Number(curr);
+                            if (!isNaN(value)) {
+                                return prev + curr;
+                            } else {
+                                return prev;
+                            }
+                        }, 0);
+                    }
+                });
+                return sums;
             },
         },
     };

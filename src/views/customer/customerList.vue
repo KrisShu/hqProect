@@ -57,8 +57,8 @@
                             style="width: 240px"
                         >
                             <el-option
-                                v-for="dict in $store.getters.salesmanUserList"
-                                :key="dict.userId"
+                                v-for="(dict, index) in $store.getters.salesmanUserList"
+                                :key="index"
                                 :label="dict.userName"
                                 :value="dict.userId"
                             />
@@ -77,8 +77,8 @@
                             style="width: 240px"
                         >
                             <el-option
-                                v-for="dict in $store.getters.principalUserList"
-                                :key="dict.userId"
+                                v-for="(dict, index) in $store.getters.principalUserList"
+                                :key="index"
                                 :label="dict.userName"
                                 :value="dict.userId"
                             />
@@ -209,7 +209,7 @@
             <el-table-column sortable label="交付日期" align="center" prop="releasedTime" width="150" />
             <el-table-column label="接单微信" prop="sourceWx" />
             <el-table-column label="业务员" prop="salemanUserName" />
-            <el-table-column label="负责人" prop="principalUserId" />
+            <el-table-column label="负责人" prop="principalUserName" />
 
             <el-table-column
                 fixed="right"
@@ -401,8 +401,8 @@
                         clearable
                     >
                         <el-option
-                            v-for="item in $store.getters.salesmanUserList"
-                            :key="item.userId"
+                            v-for="(item, index) in $store.getters.salesmanUserList"
+                            :key="index"
                             :label="item.userName"
                             :value="item.userId"
                         >
@@ -726,34 +726,20 @@
             /** 搜索按钮操作 */
             handleQuery() {
                 this.queryParams.pageNum = 1;
-                // this.queryParams.option3 == 'OrderTime' ? (this.queryParams.OrderTime = this.queryParams.value3) : '';
-                // this.queryParams.option3 == 'ReleasedTime'
-                //     ? (this.queryParams.ReleasedTime = this.queryParams.value3)
-                //     : '';
+
                 this.queryParams.startOrderTime = this.queryParams.OrderTime?.[0] || undefined;
                 this.queryParams.endOrderTime = this.queryParams.OrderTime?.[1] || undefined;
 
                 this.queryParams.startReleasedTime = this.queryParams.ReleasedTime?.[0] || undefined;
                 this.queryParams.endReleasedTime = this.queryParams.ReleasedTime?.[1] || undefined;
-                // this.queryParams.value3 = undefined;
-                // this.queryParams.OrderTime = undefined;
-                // this.queryParams.ReleasedTime = undefined;
-                // this.queryParams.option1 == 'orderNumber'
-                //     ? (this.queryParams.orderNumber = this.queryParams.value1)
-                //     : '';
-                // this.queryParams.option1 == 'sourceWx' ? (this.queryParams.sourceWx = this.queryParams.value1) : '';
-                // this.queryParams.option1 == 'customerProfiling'
-                //     ? (this.queryParams.customerProfiling = this.queryParams.value1)
-                //     : '';
+
                 this.getList();
             },
             /** 重置按钮操作 */
             resetQuery() {
                 this.queryParams.OrderTime = [];
                 this.queryParams.ReleasedTime = [];
-                this.queryParams.value1 = undefined;
-                this.queryParams.option1 = 'orderNumber';
-                this.queryParams.option3 = 'OrderTime';
+
                 this.queryParams.orderNumber = undefined;
                 this.queryParams.sourceWx = undefined;
                 this.queryParams.customerProfiling = undefined;
@@ -765,7 +751,7 @@
                 this.queryParams.startReleasedTime = undefined;
                 this.queryParams.endReleasedTime = undefined;
                 this.queryParams.projectSummaryDictCode = undefined;
-                this.queryParams.value3 = [];
+
                 this.queryParams.pageNum = 1;
 
                 this.handleQuery();

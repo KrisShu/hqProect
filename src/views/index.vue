@@ -129,11 +129,13 @@
                         title: '今日定金',
                         value: null,
                         id: 12,
+                        unit: '元',
                     },
                     {
                         title: '今日结单金额',
                         value: null,
                         id: 13,
+                        unit: '元',
                     },
                 ],
                 lineChartData: [],
@@ -151,20 +153,20 @@
             fetchDashboardStatistics() {
                 API.fetchDashboardStatistics().then(res => {
                     if (res.code === 200) {
-                        this.dataBoard[0].value = res.data.totalCustomers; //累计客户
-                        this.dataBoard[1].value = res.data.todayNewCustomers; //今日新增
-                        this.dataBoard[2].value = res.data.todayCompletedOrders; //今日完成
-                        this.dataBoard[3].value = res.data.todayClosedOrders; //今日结单
-                        this.dataBoard[4].value = res.data.weekNewCustomers; //本周新增
-                        this.dataBoard[5].value = res.data.weekCompletedOrders; //本周完成
-                        this.dataBoard[6].value = res.data.weekClosedOrders; //本周结单
-                        this.dataBoard[7].value = res.data.monthNewCustomers; //本月新增
-                        this.dataBoard[8].value = res.data.monthCompletedOrders; //本月完成
-                        this.dataBoard[9].value = res.data.monthClosedOrders; //本月结单
-                        this.dataBoard[10].value = res.data.totalRevenue; //累计金额
-                        this.dataBoard[11].value = res.data.todayAmount; //今日金额
-                        this.dataBoard[12].value = res.data.todayDeposit; //今日定金
-                        this.dataBoard[13].value = res.data.totalSettlement; //今日结单金额
+                        this.dataBoard[0].value = res.data.totalCustomers || 0; //累计客户
+                        this.dataBoard[1].value = res.data.todayNewCustomers || 0; //今日新增
+                        this.dataBoard[2].value = res.data.todayCompletedOrders || 0; //今日完成
+                        this.dataBoard[3].value = res.data.todayClosedOrders || 0; //今日结单
+                        this.dataBoard[4].value = res.data.weekNewCustomers || 0; //本周新增
+                        this.dataBoard[5].value = res.data.weekCompletedOrders || 0; //本周完成
+                        this.dataBoard[6].value = res.data.weekClosedOrders || 0; //本周结单
+                        this.dataBoard[7].value = res.data.monthNewCustomers || 0; //本月新增
+                        this.dataBoard[8].value = res.data.monthCompletedOrders || 0; //本月完成
+                        this.dataBoard[9].value = res.data.monthClosedOrders || 0; //本月结单
+                        this.dataBoard[10].value = res.data.totalRevenue || 0; //累计金额
+                        this.dataBoard[11].value = res.data.todayAmount || 0; //今日金额
+                        this.dataBoard[12].value = res.data.todayDeposit || 0; //今日定金
+                        this.dataBoard[13].value = res.data.todaySettlement || 0; //今日结单金额
                     }
                 });
             },

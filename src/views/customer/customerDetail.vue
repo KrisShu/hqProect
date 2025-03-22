@@ -12,7 +12,7 @@
 
                     <div class="flex-wrap a-center">
                         <p class="text">业务员：{{ baseDetail.salemanUserName }}</p>
-                        <p class="text ml10">接单员：</p>
+                        <p class="text ml10">接单员：{{ baseDetail.principalUserName }}</p>
                     </div>
                 </el-row>
             </div>
