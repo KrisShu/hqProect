@@ -90,30 +90,6 @@ export const constantRoutes = [
             },
         ],
     },
-
-    // {
-    //     path: '/workPerformance',
-    //     name: 'WorkPerformance',
-    //     component: Layout,
-    //     redirect: 'noredirect',
-    //     meta: { title: '绩效', icon: 'user' },
-    //     children: [
-    //         {
-    //             hidden: false,
-    //             path: 'principal',
-    //             component: () => import('@/views/workPerformance/principal'),
-    //             name: 'Principal',
-    //             meta: { title: '负责人绩效', icon: 'user' },
-    //         },
-    //         {
-    //             hidden: false,
-    //             path: 'staff',
-    //             component: () => import('@/views/workPerformance/staff'),
-    //             name: 'Staff',
-    //             meta: { title: '业务员绩效', icon: 'user' },
-    //         },
-    //     ],
-    // },
 ];
 
 // 动态路由，基于用户权限动态去加载

@@ -177,7 +177,7 @@
                     icon="el-icon-plus"
                     size="mini"
                     @click="handleAdd"
-                    v-hasPermi="['system:role:add']"
+                    v-hasPermi="['customer:CustomerList:add']"
                     >新增</el-button
                 >
             </el-col>
@@ -222,7 +222,7 @@
                     <!-- 按钮权限
 
                         详情：所有
-                        编辑：所有
+                        编辑：所有                        已结单不能编辑
 
                         删除：所有角色                    未派单的状态才能点击删除
                         完成: 负责人管理员、业务管理员    已派单的状态才能点击已完成
@@ -235,11 +235,19 @@
                     <el-button size="mini" type="text" icon="el-icon-view" @click="handleDetail(scope.row)">
                         详情
                     </el-button>
-                    <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)">
+                    <el-button
+                        v-show="scope.row.orderState != 5"
+                        v-hasPermi="['customer:CustomerList:edit']"
+                        size="mini"
+                        type="text"
+                        icon="el-icon-edit"
+                        @click="handleUpdate(scope.row)"
+                    >
                         编辑
                     </el-button>
                     <el-button
                         v-show="scope.row.orderState == 2"
+                        v-hasPermi="['customer:CustomerList:delete']"
                         size="mini"
                         type="text"
                         icon="el-icon-delete"
@@ -250,6 +258,7 @@
 
                     <el-button
                         v-show="scope.row.orderState == 3"
+                        v-hasPermi="['customer:CustomerList:complete']"
                         size="mini"
                         type="text"
                         icon="el-icon-finished"
@@ -259,6 +268,7 @@
                     </el-button>
                     <el-button
                         v-show="scope.row.orderState == 4"
+                        v-hasPermi="['customer:CustomerList:cancel']"
                         size="mini"
                         type="text"
                         icon="el-icon-circle-close"
@@ -269,6 +279,7 @@
 
                     <el-button
                         v-show="scope.row.orderState != 5"
+                        v-hasPermi="['customer:CustomerList:concat']"
                         size="mini"
                         type="text"
                         icon="el-icon-circle-plus-outline"
@@ -282,6 +293,7 @@
                         type="text"
                         icon="el-icon-circle-check"
                         @click="handleOrder('finish', scope.row)"
+                        v-hasPermi="['customer:CustomerList:finish']"
                     >
                         结单
                     </el-button>
@@ -291,6 +303,7 @@
                         type="text"
                         icon="el-icon-top-right"
                         @click="handleOrder('send', scope.row)"
+                        v-hasPermi="['customer:CustomerList:send']"
                     >
                         派单
                     </el-button>
@@ -445,7 +458,7 @@
                 </div>
                 <div class="flex-wrap lable-item">
                     <div class="label-box">状态：</div>
-                    <div class="vlue-box">{{ detailsForm.orderState }}</div>
+                    <div class="vlue-box">{{ orderState(detailsForm.orderState) }}</div>
                 </div>
                 <div class="flex-wrap lable-item">
                     <div class="label-box">交易金额：</div>
@@ -483,8 +496,8 @@
                         clearable
                     >
                         <el-option
-                            v-for="item in $store.getters.principalUserList"
-                            :key="item.userId"
+                            v-for="(item, index) in $store.getters.principalUserList"
+                            :key="index"
                             :label="item.userName"
                             :value="item.userId"
                         >
@@ -518,22 +531,10 @@
 
 <script>
     import API from '@/api/customerApi';
-    import commApi from '@/api/commApi';
     import { orderSateMeta, metaToOptions } from '@/utils/meta';
-    import {
-        listRole,
-        getRole,
-        delRole,
-        addRole,
-        updateRole,
-        dataScope,
-        changeRoleStatus,
-        deptTreeSelect,
-    } from '@/api/system/role';
 
     export default {
-        name: 'Role',
-        dicts: ['sys_normal_disable'],
+        name: 'customerList',
         data() {
             return {
                 // 遮罩层
@@ -661,12 +662,12 @@
             finalPayment() {
                 const total = Number(this.customerForm.totalAmount) || 0;
                 const paid = Number(this.customerForm.paidAmount) || 0;
-                return (total - paid).toFixed(2); // 保留两位小数
+                return (total - paid)?.toFixed(2); // 保留两位小数
             },
             finalPayment_detailsForm() {
                 const total = Number(this.detailsForm.totalAmount) || 0;
                 const paid = Number(this.detailsForm.paidAmount) || 0;
-                return (total - paid).toFixed(2); // 保留两位小数
+                return (total - paid)?.toFixed(2); // 保留两位小数
             },
             orderState() {
                 return value => {
@@ -781,8 +782,8 @@
             },
             handleOrder(type, row) {
                 this.detailsForm = Object.assign({}, row, {
-                    totalAmount: row.totalAmount.toFixed(2),
-                    paidAmount: row.paidAmount.toFixed(2),
+                    totalAmount: row.totalAmount?.toFixed(2),
+                    paidAmount: row.paidAmount?.toFixed(2) || 0,
                     principalUserId:
                         // type == 'send' ? undefined : row.principalUserId ? row.principalUserId : '暂无负责人',
                         row.principalUserId ? row.principalUserId : type == 'send' ? undefined : '暂无负责人',
