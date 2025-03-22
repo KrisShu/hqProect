@@ -1,22 +1,7 @@
 <template>
     <div class="app-container home">
-        <!-- <el-row :gutter="20">
-            <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
-                <div class="search-box">
-                    <el-date-picker
-                        v-model="value1"
-                        type="daterange"
-                        range-separator="至"
-                        start-placeholder="开始日期"
-                        end-placeholder="结束日期"
-                    >
-                    </el-date-picker>
-                </div>
-            </el-col>
-        </el-row> -->
-
         <!-- 统计看板 -->
-        <el-row :gutter="20">
+        <el-row :gutter="20" v-hasRole="['admin', 'manager', 'salesmanManager', 'writerManager']">
             <el-row :span="24">
                 <h4><i class="el-icon-pie-chart"></i>统计看板</h4>
             </el-row>
@@ -28,7 +13,7 @@
             </el-col>
         </el-row>
         <!-- 每月收益 -->
-        <el-row :gutter="20">
+        <el-row :gutter="20" v-hasRole="['admin', 'manager', 'salesmanManager', 'writerManager']">
             <el-row :span="24">
                 <h4><i class="el-icon-data-line"></i>每月收益</h4>
             </el-row>

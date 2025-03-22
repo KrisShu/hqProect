@@ -37,7 +37,7 @@ service.interceptors.request.use(
             let url = config.url + '?' + tansParams(config.params);
             url = url.slice(0, -1);
             config.params = {};
-            console.log('url============', url);
+            // console.log('url============', url);
             config.url = url;
         }
         if (config.method === 'get' && config.rawParams) {
