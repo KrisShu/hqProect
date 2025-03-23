@@ -166,7 +166,37 @@
                 </template>
             </el-table-column>
             <el-table-column label="下单日期" align="center" prop="orderTime" width="150" />
-            <el-table-column label="交付日期" align="center" prop="releasedTime" width="150" />
+            <el-table-column label="交付日期" align="center" prop="releasedTime" width="150">
+                <template slot-scope="scope">
+                    <div>
+                        <span>{{ scope.row.releasedTime }}</span>
+                        <el-tag
+                            effect="dark"
+                            v-if="new Date(scope.row.releasedTime) < new Date()"
+                            type="danger"
+                            size="mini"
+                            >最紧急
+                        </el-tag>
+                        <el-tag
+                            effect="dark"
+                            v-else-if="(new Date(scope.row.releasedTime) - new Date()) / (1000 * 60 * 60) <= 12"
+                            type="warning"
+                            size="mini"
+                        >
+                            非常紧急
+                        </el-tag>
+                        <el-tag
+                            effect="dark"
+                            v-else-if="(new Date(scope.row.releasedTime) - new Date()) / (1000 * 60 * 60) <= 24"
+                            type="success"
+                            size="mini"
+                        >
+                            紧急
+                        </el-tag>
+                        <el-tag effect="dark" v-else type="info" size="mini">正常</el-tag>
+                    </div>
+                </template>
+            </el-table-column>
             <el-table-column label="接单微信" prop="sourceWx" />
             <el-table-column label="业务员" prop="salemanUserName" />
             <el-table-column label="负责人" prop="principalUserId" />

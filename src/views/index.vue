@@ -37,7 +37,7 @@
     import API from '@/api/mainApI';
     import LineChart from '@/views/dashboard/LineChart.vue';
     import BarChart from '@/views/dashboard/BarChart.vue';
-
+    import auth from '@/plugins/auth';
     export default {
         name: 'Index',
         components: {
@@ -128,8 +128,11 @@
             };
         },
         created() {
-            this.fetchDashboardStatistics();
-            this.fetchMonthlyEarningsStatistics();
+            if (auth.hasRoleOr(['admin', 'manager', 'salesmanManager', 'writerManager'])) {
+                this.fetchDashboardStatistics();
+                this.fetchMonthlyEarningsStatistics();
+                console.log('1111111111111111=========');
+            }
             this.fetchCustomerStatistics();
         },
         methods: {
