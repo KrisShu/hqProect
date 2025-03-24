@@ -116,7 +116,8 @@
                     pageNum: 1,
                     pageSize: 10,
                     type: 2, //业务员2
-                    year_month: undefined,
+                    year_month: this.parseTime(new Date(), '{y}-{m}'),
+                    // year_month: undefined,
                 },
                 centerDialogVisible: false,
                 dataForm: {
@@ -130,6 +131,8 @@
             };
         },
         created() {
+            // const timenow = this.parseTime(new Date(), '{y}-{m}');
+            // console.log('2222222222222', timenow);
             this.getList();
         },
         methods: {
@@ -146,9 +149,6 @@
             handleQuery() {
                 console.log(this.queryParams.year_month);
                 this.queryParams.pageNum = 1;
-                // this.queryParams.year_month = this.queryParams.year_month
-                //     ? Number(this.queryParams.year_month)
-                //     : undefined;
                 const newArr = this.queryParams.year_month ? this.queryParams.year_month.split('-') : '';
                 if (newArr) {
                     this.queryParams.year = newArr[0];
@@ -162,9 +162,9 @@
             /** 重置按钮操作 */
             resetQuery() {
                 this.queryParams.pageNum = 1;
-                this.queryParams.year_month = undefined;
-                this.queryParams.year = undefined;
-                this.queryParams.month = undefined;
+                this.queryParams.year_month = this.parseTime(new Date(), '{y}-{m}');
+                // this.queryParams.year = undefined;
+                // this.queryParams.month = undefined;
                 this.handleQuery();
             },
             changeMoneny(data) {
