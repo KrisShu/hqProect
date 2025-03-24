@@ -81,6 +81,14 @@ export function recordList(data) {
         data: data,
     });
 }
+
+export function testUser(data) {
+    return request({
+        url: '/system/order/testUser',
+        method: 'get',
+        rawParams: data,
+    });
+}
 export default {
     fetchList,
     addOrder,
@@ -92,4 +100,5 @@ export default {
     completeOrder,
     cancelOrder,
     recordList,
+    testUser,
 };

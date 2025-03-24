@@ -131,7 +131,6 @@
             if (auth.hasRoleOr(['admin', 'manager', 'salesmanManager', 'writerManager'])) {
                 this.fetchDashboardStatistics();
                 this.fetchMonthlyEarningsStatistics();
-                console.log('1111111111111111=========');
             }
             this.fetchCustomerStatistics();
         },
@@ -152,7 +151,7 @@
                         this.dataBoard[8].value = res.data.monthCompletedOrders || 0; //本月完成
                         this.dataBoard[9].value = res.data.monthClosedOrders || 0; //本月结单
                         this.dataBoard[10].value = res.data.totalRevenue || 0; //累计金额
-                        this.dataBoard[11].value = res.data.todayAmount || 0; //今日金额
+                        this.dataBoard[11].value = res.data.todayRevenue || 0; //今日金额
                         this.dataBoard[12].value = res.data.todayDeposit || 0; //今日定金
                         this.dataBoard[13].value = res.data.todaySettlement || 0; //今日结单金额
                     }

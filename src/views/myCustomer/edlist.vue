@@ -55,8 +55,8 @@
                             style="width: 240px"
                         >
                             <el-option
-                                v-for="dict in $store.getters.salesmanUserList"
-                                :key="dict.userId"
+                                v-for="(dict, index) in $store.getters.salesmanUserList"
+                                :key="index"
                                 :label="dict.userName"
                                 :value="dict.userId"
                             />
@@ -75,8 +75,8 @@
                             style="width: 240px"
                         >
                             <el-option
-                                v-for="dict in $store.getters.principalUserList"
-                                :key="dict.userId"
+                                v-for="(dict, index) in $store.getters.principalUserList"
+                                :key="index"
                                 :label="dict.userName"
                                 :value="dict.userId"
                             />
@@ -90,7 +90,7 @@
                     <div class="vlue-box">
                         <el-select v-model="queryParams.orderState" placeholder="请选择状态" style="width: 240px">
                             <el-option
-                                v-for="dict in orderSateOptions"
+                                v-for="(dict, index) in orderSateOptions"
                                 :key="dict.value"
                                 :label="dict.label"
                                 :value="dict.value"
@@ -109,8 +109,8 @@
                             style="width: 240px"
                         >
                             <el-option
-                                v-for="item in $store.getters.projectSummaryList"
-                                :key="item.dictValue"
+                                v-for="(item, index) in $store.getters.projectSummaryList"
+                                :key="index"
                                 :label="item.dictLabel"
                                 :value="item.dictValue"
                             >

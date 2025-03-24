@@ -3,7 +3,7 @@
         <!-- 查询条件 -->
         <el-row class="search-box flex-wrap flex-hh mb20" v-show="showSearch">
             <el-row class="w100">
-                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
+                <el-col class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
                     <div class="label-box">
                         <div class="lael-input">单号：</div>
                     </div>
@@ -16,7 +16,7 @@
                         />
                     </div>
                 </el-col>
-                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
+                <el-col class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
                     <div class="label-box">
                         <div class="lael-input">接单微信号：</div>
                     </div>
@@ -29,7 +29,7 @@
                         />
                     </div>
                 </el-col>
-                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
+                <el-col class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
                     <div class="label-box">
                         <div class="lael-input">客户概况：</div>
                     </div>
@@ -45,7 +45,7 @@
             </el-row>
 
             <el-row class="w100">
-                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
+                <el-col class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
                     <div class="label-box">
                         <div class="lael-input">业务员：</div>
                     </div>
@@ -65,7 +65,7 @@
                         </el-select>
                     </div>
                 </el-col>
-                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
+                <el-col class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
                     <div class="label-box">
                         <div class="lael-input">负责人：</div>
                     </div>
@@ -85,7 +85,7 @@
                         </el-select>
                     </div>
                 </el-col>
-                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
+                <el-col class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
                     <div class="label-box">
                         <div class="lael-input">状态：</div>
                     </div>
@@ -105,7 +105,7 @@
                         </el-select>
                     </div>
                 </el-col>
-                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
+                <el-col class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
                     <div class="label-box">
                         <div class="lael-input">项目概况：</div>
                     </div>
@@ -694,8 +694,17 @@
         },
         created() {
             this.getList();
+            this.testGet();
         },
         methods: {
+            testGet() {
+                API.testUser({
+                    userId: 1,
+                    keyWord: '测试',
+                }).then(res => {
+                    console.log(res);
+                });
+            },
             getList() {
                 this.loading = true;
                 API.fetchList(this.queryParams).then(res => {
@@ -704,26 +713,6 @@
                     this.loading = false;
                 });
             },
-            optionSelectChange(key, valueKey) {
-                if (key == 'orderNumber') {
-                    this.queryParams.sourceWx = undefined;
-                    this.queryParams.customerProfiling = undefined;
-                } else if (key == 'sourceWx') {
-                    this.queryParams.orderNumber = undefined;
-                    this.queryParams.customerProfiling = undefined;
-                } else if (key == 'customerProfiling') {
-                    this.queryParams.orderNumber = undefined;
-                    this.queryParams.sourceWx = undefined;
-                } else if (key == 'OrderTime') {
-                    this.queryParams.ReleasedTime = undefined;
-                } else if (key == 'ReleasedTime') {
-                    this.queryParams.OrderTime = undefined;
-                }
-
-                this.queryParams[key] = this.queryParams[valueKey];
-                console.log('this.queryParams', this.queryParams[key]);
-            },
-
             /** 搜索按钮操作 */
             handleQuery() {
                 this.queryParams.pageNum = 1;

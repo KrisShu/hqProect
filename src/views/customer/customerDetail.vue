@@ -89,7 +89,7 @@
                     <div class="infinite-list-wrapper" style="overflow: auto">
                         <ul class="infinite-list" v-infinite-scroll="load" infinite-scroll-disabled="disabled">
                             <li v-for="(item, index) in operationRecord" :key="index" class="list-item">
-                                {{ index }} {{ item.createBy }}在{{ item.createTime }}操作{{ item.operatingRecord }}
+                                {{ item.createBy }}在{{ item.createTime }}操作{{ item.operatingRecord }}
                             </li>
                         </ul>
                         <p class="loading-noMore" v-if="loading">加载中... <i class="el-icon-loading"></i></p>

@@ -56,8 +56,8 @@
                             style="width: 240px"
                         >
                             <el-option
-                                v-for="dict in $store.getters.salesmanUserList"
-                                :key="dict.userId"
+                                v-for="(dict, index) in $store.getters.salesmanUserList"
+                                :key="index"
                                 :label="dict.userName"
                                 :value="dict.userId"
                             />
@@ -76,8 +76,8 @@
                             style="width: 240px"
                         >
                             <el-option
-                                v-for="dict in $store.getters.principalUserList"
-                                :key="dict.userId"
+                                v-for="(dict, index) in $store.getters.principalUserList"
+                                :key="index"
                                 :label="dict.userName"
                                 :value="dict.userId"
                             />
@@ -96,8 +96,8 @@
                             style="width: 240px"
                         >
                             <el-option
-                                v-for="item in $store.getters.projectSummaryList"
-                                :key="item.dictValue"
+                                v-for="(item, index) in $store.getters.projectSummaryList"
+                                :key="index"
                                 :label="item.dictLabel"
                                 :value="item.dictValue"
                             >
@@ -152,7 +152,7 @@
             <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
         </el-row>
         <!-- 表格 -->
-        <el-table v-loading="loading" :data="ingList">
+        <el-table :row-class-name="tableRowClassName" v-loading="loading" :data="ingList">
             <el-table-column type="selection" width="55" align="center" />
             <el-table-column fixed label="单号" prop="orderNumber" width="120" />
             <el-table-column label="客户概况" align="center" prop="customerProfiling" width="250" />
@@ -188,7 +188,7 @@
                         <el-tag
                             effect="dark"
                             v-else-if="(new Date(scope.row.releasedTime) - new Date()) / (1000 * 60 * 60) <= 24"
-                            type="success"
+                            type="info"
                             size="mini"
                         >
                             紧急
@@ -303,25 +303,6 @@
                     this.loading = false;
                 });
             },
-            optionSelectChange(key, valueKey) {
-                if (key == 'orderNumber') {
-                    this.queryParams.sourceWx = undefined;
-                    this.queryParams.customerProfiling = undefined;
-                } else if (key == 'sourceWx') {
-                    this.queryParams.orderNumber = undefined;
-                    this.queryParams.customerProfiling = undefined;
-                } else if (key == 'customerProfiling') {
-                    this.queryParams.orderNumber = undefined;
-                    this.queryParams.sourceWx = undefined;
-                } else if (key == 'OrderTime') {
-                    this.queryParams.ReleasedTime = undefined;
-                } else if (key == 'ReleasedTime') {
-                    this.queryParams.OrderTime = undefined;
-                }
-
-                this.queryParams[key] = this.queryParams[valueKey];
-                console.log('this.queryParams', this.queryParams[key]);
-            },
             /** 搜索按钮操作 */
             /** 搜索按钮操作 */
             handleQuery() {
@@ -381,8 +362,31 @@
                         console.log('取消');
                     });
             },
+            tableRowClassName({ row, rowIndex }) {
+                console.log('row', row);
+                if (new Date(row.releasedTime) < new Date()) {
+                    return 'danger-row';
+                } else if ((new Date(row.releasedTime) - new Date()) / (1000 * 60 * 60) <= 12) {
+                    return 'warning-row';
+                } else if ((new Date(row.releasedTime) - new Date()) / (1000 * 60 * 60) <= 24) {
+                    return 'info-row';
+                } else {
+                    return '';
+                }
+            },
         },
     };
 </script>
 
-<style></style>
+<style>
+    .el-table .danger-row {
+        background-color: #f56c6c;
+    }
+    .el-table .warning-row {
+        background: #e6a23c;
+    }
+
+    .el-table .info-row {
+        background: #909399;
+    }
+</style>
