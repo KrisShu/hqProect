@@ -229,7 +229,7 @@
                     取消完成：负责人管理员、业务管理员    已完成的状态才能点击取消完成
                         追加：负责人管理员、业务管理员    只有结单的不能追加
                         结单：负责人管理员、业务管理员    客户订单已完成状态才能点击结单
-                        派单：负责人管理员、业务管理员    客户订单未派单状态和派单状态 才能点击派单
+                        派单：负责人管理员、业务管理员    客户订单未派单状态才能点击派单
 
                     -->
                     <el-button size="mini" type="text" icon="el-icon-view" @click="handleDetail(scope.row)">
@@ -298,7 +298,7 @@
                         结单
                     </el-button>
                     <el-button
-                        v-show="scope.row.orderState == 2 || scope.row.orderState == 3"
+                        v-show="scope.row.orderState == 2"
                         size="mini"
                         type="text"
                         icon="el-icon-top-right"
@@ -419,6 +419,7 @@
                             :label="item.userName"
                             :value="item.userId"
                         >
+                            <!-- {{ item.userId }} -->
                         </el-option>
                     </el-select>
                 </el-form-item>
@@ -496,7 +497,7 @@
                         clearable
                     >
                         <el-option
-                            v-for="(item, index) in $store.getters.principalUserList"
+                            v-for="(item, index) in principalUserList"
                             :key="index"
                             :label="item.userName"
                             :value="item.userId"
@@ -532,6 +533,7 @@
 <script>
     import API from '@/api/customerApi';
     import { orderSateMeta, metaToOptions } from '@/utils/meta';
+    import { fetchprincipalUserList } from '@/api/commApi';
 
     export default {
         name: 'customerList',
@@ -655,6 +657,7 @@
                         label: '已结单',
                     },
                 ],
+                principalUserList: [], //负责人列表
             };
         },
         computed: {
@@ -694,7 +697,7 @@
         },
         created() {
             this.getList();
-            this.testGet();
+            // this.testGet();
         },
         methods: {
             testGet() {
@@ -703,6 +706,14 @@
                     keyWord: '测试',
                 }).then(res => {
                     console.log(res);
+                });
+            },
+            initprincipalUserList() {
+                fetchprincipalUserList({
+                    keyWord: undefined,
+                }).then(res => {
+                    console.log('333333333', res);
+                    this.principalUserList = res.rows;
                 });
             },
             getList() {
@@ -757,6 +768,29 @@
             handleAdd() {
                 this.reset();
                 // this.getMenuTreeselect();
+                console.log('当前的用户id', this.$store.state.user.id);
+                let currid = this.$store.state.user.id;
+
+                this.customerForm.salesmanUserId =
+                    this.$store.getters.salesmanUserList.find(item => item.userId == currid)?.userId ?? undefined;
+                // let _this = this;
+                // const id =
+                // this.$store.getters.salesmanUserList.forEach(item => {
+                //     console.log(
+                //         'itemitemitem',
+                //         item.userId,
+                //         this.$store.state.user.id,
+                //         item.userId == _this.$store.state.user.id,
+                //     );
+
+                //     if (item.userId == this.$store.state.user.userId) {
+                //         // this.customerForm.salesmanUserId = item.userId;
+                //         console.log('7887878');
+                //     }
+
+                // });
+                // console.log('id', id);
+                console.log('this.customerForm.salesmanUserId', this.customerForm.salesmanUserId);
                 this.open = true;
                 this.title = '添加客户';
             },
@@ -770,15 +804,20 @@
                 this.title = '编辑客户';
             },
             handleOrder(type, row) {
+                this.initprincipalUserList();
                 this.detailsForm = Object.assign({}, row, {
                     totalAmount: row.totalAmount?.toFixed(2),
                     paidAmount: row.paidAmount?.toFixed(2) || 0,
-                    principalUserId:
-                        // type == 'send' ? undefined : row.principalUserId ? row.principalUserId : '暂无负责人',
-                        row.principalUserId ? row.principalUserId : type == 'send' ? undefined : '暂无负责人',
+                    principalUserId: row.principalUserId
+                        ? row.principalUserId
+                        : type == 'send'
+                        ? undefined
+                        : '暂无负责人',
+
                     remark: undefined,
                     amount: undefined,
                 });
+
                 this.title = type == 'finish' ? '结单' : type == 'send' ? '派单' : '追加';
                 this.openDataScope = true;
                 this.isPrincipal = type !== 'send';
@@ -892,6 +931,7 @@
                     path: '/customer/CustomerDetail',
                     query: {
                         details: JSON.stringify(row),
+                        type: 'customer',
                     },
                 });
             },

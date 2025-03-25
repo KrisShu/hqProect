@@ -202,6 +202,9 @@
                     >
                         取消
                     </el-button>
+                    <el-button size="mini" type="text" icon="el-icon-view" @click="handleDetail(scope.row)">
+                        详情
+                    </el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -362,6 +365,15 @@
                     .catch(() => {
                         console.log('取消');
                     });
+            },
+            handleDetail(row) {
+                this.$router.push({
+                    path: '/customer/CustomerDetail',
+                    query: {
+                        details: JSON.stringify(row),
+                        type: 'myCustomer',
+                    },
+                });
             },
         },
     };

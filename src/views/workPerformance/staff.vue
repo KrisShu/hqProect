@@ -92,18 +92,6 @@
         name: 'ingList',
         components: {},
         data() {
-            const reg = /^\d+(\.\d{1,2})?$/;
-            const validateValue = (rule, value, callback) => {
-                if (!value) {
-                    return callback(new Error('请输入内容'));
-                } else {
-                    if (!reg.test(value)) {
-                        callback(new Error('请输入正确格式'));
-                    } else {
-                        callback();
-                    }
-                }
-            };
             return {
                 // 遮罩层
                 loading: false,
@@ -124,7 +112,8 @@
                     value: '',
                 },
                 rules: {
-                    value: [{ validator: validateValue, trigger: 'blur' }],
+                    value: '',
+                    // value: [{ validator: validateValue, trigger: 'blur' }],
                 },
                 title: '修改基本工资',
                 unit: '元',
@@ -136,6 +125,32 @@
             this.getList();
         },
         methods: {
+            validateValue(rule, value, callback) {
+                const reg = /^\d+(\.\d{1,2})?$/;
+                // console.log('rule', rule);
+                if (!value) {
+                    return callback(new Error('请输入内容'));
+                } else {
+                    if (!reg.test(value)) {
+                        callback(new Error('请输入正确格式'));
+                    } else {
+                        callback();
+                    }
+                }
+            },
+            validateValue2(rule, value, callback) {
+                const reg2 = /^(100|[1-9]?[0-9])$/;
+                if (!value) {
+                    return callback(new Error('请输入内容'));
+                } else {
+                    if (!reg2.test(value)) {
+                        callback(new Error('请输入正确格式'));
+                    } else {
+                        callback();
+                    }
+                }
+            },
+
             getList() {
                 this.loading = true;
                 API.fetchList(this.queryParams).then(res => {
@@ -175,6 +190,7 @@
                 this.centerDialogVisible = true;
                 this.unit = '元';
                 this.title = '修改基础工资';
+                this.rules.value = [{ validator: this.validateValue, trigger: 'blur' }];
             },
             changeCommissionRate(data) {
                 this.dataForm = Object.assign({}, data, {
@@ -184,6 +200,7 @@
                 this.centerDialogVisible = true;
                 this.unit = '%';
                 this.title = '修改提成比例';
+                this.rules.value = [{ validator: this.validateValue2, trigger: 'blur' }];
             },
             closeAfter() {
                 this.$refs.dataForm.clearValidate();

@@ -53,6 +53,13 @@
                         id: 0,
                     },
                     {
+                        title: '累计金额',
+                        value: null,
+                        id: 10,
+                        unit: '元',
+                    },
+
+                    {
                         title: '今日新增',
                         value: null,
                         id: 1,
@@ -66,6 +73,24 @@
                         title: '今日结单',
                         value: null,
                         id: 3,
+                    },
+                    {
+                        title: '今日金额',
+                        value: null,
+                        id: 11,
+                        unit: '元',
+                    },
+                    {
+                        title: '今日定金',
+                        value: null,
+                        id: 12,
+                        unit: '元',
+                    },
+                    {
+                        title: '今日结单金额',
+                        value: null,
+                        id: 13,
+                        unit: '元',
                     },
                     {
                         title: '本周新增',
@@ -97,30 +122,6 @@
                         title: '本月结单',
                         value: null,
                         id: 9,
-                    },
-                    {
-                        title: '累计金额',
-                        value: null,
-                        id: 10,
-                        unit: '元',
-                    },
-                    {
-                        title: '今日金额',
-                        value: null,
-                        id: 11,
-                        unit: '元',
-                    },
-                    {
-                        title: '今日定金',
-                        value: null,
-                        id: 12,
-                        unit: '元',
-                    },
-                    {
-                        title: '今日结单金额',
-                        value: null,
-                        id: 13,
-                        unit: '元',
                     },
                 ],
                 lineChartData: [],

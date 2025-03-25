@@ -38,13 +38,13 @@
                             <div class="label-box">客户微信：</div>
                             <div class="vlue-box">{{ baseDetail.customerWx }}</div>
                         </div>
-                        <div class="flex-wrap lable-item">
+                        <div class="flex-wrap lable-item" v-if="type === 'customer'">
                             <div class="label-box">交易金额：</div>
                             <div class="vlue-box">
                                 <el-link type="primary">{{ baseDetail.totalAmount.toFixed(2) }}</el-link>
                             </div>
                         </div>
-                        <div class="flex-wrap lable-item">
+                        <div class="flex-wrap lable-item" v-if="type === 'customer'">
                             <div class="label-box"></div>
                             <div class="vlue-box flex-wrap">
                                 <el-link type="success" class="mr10"
@@ -110,6 +110,7 @@
             return {
                 activeName: 'first',
                 baseDetail: {},
+                type: undefined,
                 operationRecord: [],
                 pageNum: 1,
                 pageSize: 10,
@@ -157,6 +158,7 @@
                 // this.$route.params;
                 console.log('接收参数', JSON.parse(this.$route.query.details));
                 this.baseDetail = JSON.parse(this.$route.query.details);
+                this.type = this.$route.query.type;
                 this.fetchRecordList();
             },
             handleClick(tab, event) {

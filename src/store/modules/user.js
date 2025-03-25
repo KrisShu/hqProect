@@ -75,6 +75,7 @@ const user = {
             return new Promise((resolve, reject) => {
                 getInfo()
                     .then(res => {
+                        console.log('res----------------', res);
                         const user = res.user;
                         let avatar = user.avatar || '';
                         if (!isHttp(avatar)) {
