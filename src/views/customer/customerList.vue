@@ -352,7 +352,7 @@
                         :precision="2"
                         :step="1"
                         :min="0"
-                        :max="5000"
+                        :max="50000"
                     ></el-input-number>
                 </el-form-item>
                 <el-form-item label="已付款" prop="paidAmount">
