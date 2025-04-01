@@ -1,13 +1,13 @@
 <template>
-    <div>
-        <el-row class="searchBox mb20 flex-wrap a-center" v-show="showSearch">
+    <div class="app-container">
+        <el-row class="search-box mb20 flex-wrap a-center" v-show="showSearch">
             <el-col class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
                 <div class="label-box">
                     <div class="lael-input">单号：</div>
                 </div>
                 <div class="vlue-box">
                     <el-input
-                        v-model="queryParams.orderNumber"
+                        v-model="queryParams.order_number"
                         placeholder="请输入内容"
                         clearable
                         style="width: 240px"
@@ -16,10 +16,15 @@
             </el-col>
             <el-col class="flex-box flex-wrap a-center" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
                 <div class="label-box">
-                    <div class="lael-input">月份：</div>
+                    <div class="lael-input">时间：</div>
                 </div>
                 <div class="vlue-box">
-                    <el-date-picker v-model="queryParams.year_month" type="month" placeholder="选择月">
+                    <el-date-picker
+                        value-format="yyyy-MM-dd"
+                        v-model="queryParams.create_time"
+                        type="date"
+                        placeholder="选择日期"
+                    >
                     </el-date-picker>
                 </div>
             </el-col>
@@ -35,9 +40,9 @@
 
         <el-table v-loading="loading" :data="dataList">
             <el-table-column fixed label="单号" prop="orderNumber" />
-            <el-table-column label="参与计算的收款" align="center" prop="customerProfiling" />
-            <el-table-column label="提成比例" align="center" prop="customerProfiling" />
-            <el-table-column label="时间" align="center" prop="customerProfiling" />
+            <el-table-column label="参与计算的收款" align="center" prop="money" />
+            <el-table-column label="提成比例" align="center" prop="commissionRate" />
+            <el-table-column label="时间" align="center" prop="createTime" />
         </el-table>
         <!-- 分页 -->
         <pagination
@@ -51,38 +56,51 @@
 </template>
 
 <script>
+    import API from '@/api/workPerformanceApi';
+    import { create } from 'sortablejs';
     export default {
         name: 'detailsList',
 
         data() {
             return {
-                showSearch: false,
+                showSearch: true,
                 loading: false,
                 dataList: [],
                 total: 0,
                 queryParams: {
-                    orderNumber: '',
-                    year_month: '',
+                    performance_id: this.$route.query.id,
+                    order_number: '',
+                    create_time: '',
                     pageNum: 1,
                     pageSize: 10,
                 },
             };
         },
+        created() {
+            this.getList();
+        },
         methods: {
             handleQuery() {
+                this.queryParams.pageNum = 1;
                 this.getList();
             },
             resetQuery() {
                 this.queryParams = {
-                    orderNumber: '',
-                    year_month: '',
+                    performance_id: this.$route.query.id,
+                    order_number: '',
+                    create_time: '',
                     pageNum: 1,
                     pageSize: 10,
                 };
                 this.getList();
             },
             getList() {
-                // Fetch data from API
+                this.loading = true;
+                API.fetchDetail(this.queryParams).then(res => {
+                    this.dataList = res.rows;
+                    this.total = res.total;
+                    this.loading = false;
+                });
             },
         },
     };

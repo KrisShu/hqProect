@@ -23,8 +23,19 @@ export function editCommissionRate(data) {
         data,
     });
 }
+
+// 绩效详情
+
+export function fetchDetail(data) {
+    return request({
+        url: '/system/list/list',
+        method: 'post',
+        data,
+    });
+}
 export default {
     fetchList,
     editBasicWage,
     editCommissionRate,
+    fetchDetail,
 };

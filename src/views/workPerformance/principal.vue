@@ -17,6 +17,11 @@
             </el-col>
         </el-row>
         <el-row :gutter="10" class="mb8">
+            <el-col :span="1.5">
+                <el-button type="primary" plain icon="el-icon-plus" size="mini" @click="handleRules"
+                    >绩效规则</el-button
+                >
+            </el-col>
             <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
         </el-row>
         <!-- 表格 -->
@@ -30,16 +35,21 @@
                         <span>负责的客户<i class="el-icon-question"></i></span>
                     </el-tooltip>
                 </template>
+                <template slot-scope="scope">
+                    <el-link @click="handelDetails(scope.row)" type="primary" icon="el-icon-edit">
+                        {{ scope.row.num }}
+                    </el-link>
+                </template>
             </el-table-column>
 
             <el-table-column label="实际金额总数" align="center" prop="amount"> </el-table-column>
-            <el-table-column label="提成比例" align="center" prop="commissionRate">
+            <!-- <el-table-column label="提成比例" align="center" prop="commissionRate">
                 <template slot-scope="scope">
                     <el-link @click="changeCommissionRate(scope.row)" type="primary" icon="el-icon-edit">
                         {{ scope.row.commissionRate }}%
                     </el-link>
                 </template>
-            </el-table-column>
+            </el-table-column> -->
             <el-table-column label="基础工资" prop="basicWage">
                 <template slot-scope="scope">
                     <el-link @click="changeMoneny(scope.row)" type="primary" icon="el-icon-edit">
@@ -116,6 +126,7 @@
             this.getList();
         },
         methods: {
+            handleRules() {},
             validateValue(rule, value, callback) {
                 const reg = /^\d+(\.\d{1,2})?$/;
                 // console.log('rule', rule);
@@ -238,6 +249,22 @@
                     }
                 });
                 return sums;
+            },
+            // 查看具体详情
+            handelDetails(item) {
+                // this.$router.push({
+                //     path: '/customer/CustomerDetail',
+                //     query: {
+                //         details: JSON.stringify(item),
+                //         type: 'customer',
+                //     },
+                // });
+                this.$router.push({
+                    path: '/workPerformance/detailsList',
+                    query: {
+                        id: item.id,
+                    },
+                });
             },
         },
     };

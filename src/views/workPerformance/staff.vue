@@ -38,13 +38,13 @@
             </el-table-column>
 
             <el-table-column label="实际金额总数" align="center" prop="amount"> </el-table-column>
-            <el-table-column label="提成比例" align="center" prop="commissionRate">
+            <!-- <el-table-column label="提成比例" align="center" prop="commissionRate">
                 <template slot-scope="scope">
                     <el-link @click="changeCommissionRate(scope.row)" type="primary" icon="el-icon-edit">
                         {{ scope.row.commissionRate }}%
                     </el-link>
                 </template>
-            </el-table-column>
+            </el-table-column> -->
             <el-table-column label="基础工资" prop="basicWage">
                 <template slot-scope="scope">
                     <el-link @click="changeMoneny(scope.row)" type="primary" icon="el-icon-edit">

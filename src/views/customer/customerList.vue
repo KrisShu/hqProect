@@ -308,12 +308,7 @@
                     >
                         派单
                     </el-button>
-                    <el-button
-                        size="mini"
-                        type="text"
-                        icon="el-icon-coin"
-                        @click="handlePerformance('performance', scope.row)"
-                    >
+                    <el-button size="mini" type="text" icon="el-icon-coin" @click="handlePerformance(scope.row)">
                         算绩效
                     </el-button>
                 </template>
@@ -545,22 +540,8 @@
             append-to-body
         >
             <el-form :model="performanceForm" :rules="performanceFormRules" ref="performanceForm" label-width="120px">
-                <el-form-item label="负责人：" prop="principalUserId">
-                    <el-select
-                        class="w100"
-                        v-model="performanceForm.principalUserId"
-                        placeholder="请选择负责人"
-                        :disabled="isPrincipal"
-                        clearable
-                    >
-                        <el-option
-                            v-for="(item, index) in principalUserList"
-                            :key="index"
-                            :label="item.userName"
-                            :value="item.userId"
-                        >
-                        </el-option>
-                    </el-select>
+                <el-form-item label="负责人：" prop="principalUserName">
+                    <el-input readonly v-model="performanceForm.principalUserName"> </el-input>
                 </el-form-item>
                 <el-form-item label="当前付费金额：" prop="payment">
                     <el-input-number
@@ -731,6 +712,9 @@
                 principalUserList: [], //负责人列表
                 // 纳入绩效表单
                 performanceForm: {
+                    id: undefined,
+                    orderNumber: undefined,
+                    principalUserName: undefined,
                     principalUserId: undefined,
                     payment: null,
                     ratio: null,
@@ -887,11 +871,18 @@
                 this.openDataScope = true;
                 this.isPrincipal = type !== 'send';
             },
-            handlePerformance() {
-                this.initprincipalUserList();
+            handlePerformance(item) {
+                console.log('item', item);
                 this.openPerformance = true;
+
                 this.$nextTick(() => {
                     this.$refs.performanceForm.clearValidate();
+                    this.performanceForm.id = item.id;
+                    this.performanceForm.principalUserId = item.principalUserId;
+                    this.performanceForm.principalUserName = item.principalUserName;
+                    this.performanceForm.orderNumber = item.orderNumber;
+
+                    console.log('performanceForm', this.performanceForm);
                 });
             },
             handleChange() {
@@ -903,8 +894,18 @@
             submitPerformance() {
                 this.$refs.performanceForm.validate(valid => {
                     if (valid) {
-                        this.$modal.msgSuccess('纳入绩效成功');
-                        this.openPerformance = false;
+                        const data = {
+                            id: this.performanceForm.id,
+                            orderNumber: this.performanceForm.orderNumber,
+                            userId: this.performanceForm.principalUserId,
+                            money: this.performanceForm.payment,
+                            commissionRate: this.performanceForm.ratio,
+                        };
+                        API.royaltyCalculation(data).then(res => {
+                            this.getList();
+                            this.$modal.msgSuccess('纳入绩效成功');
+                            this.openPerformance = false;
+                        });
                     }
                 });
             },
@@ -941,12 +942,6 @@
                 this.$refs['customerForm'].validate(valid => {
                     if (valid) {
                         if (this.customerForm.id != undefined) {
-                            // this.form.menuIds = this.getMenuAllCheckedKeys();
-                            // updateRole(this.form).then(response => {
-                            //     this.$modal.msgSuccess('修改成功');
-                            //     this.open = false;
-                            //     this.getList();
-                            // });
                             API.editOrder(this.customerForm).then(res => {
                                 this.$modal.msgSuccess('修改成功');
                                 this.open = false;
