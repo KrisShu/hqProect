@@ -230,6 +230,7 @@
                         追加：负责人管理员、业务管理员    只有结单的不能追加
                         结单：负责人管理员、业务管理员    客户订单已完成状态才能点击结单
                         派单：负责人管理员、业务管理员    客户订单未派单状态才能点击派单
+                    纳入绩效：
 
                     -->
                     <el-button size="mini" type="text" icon="el-icon-view" @click="handleDetail(scope.row)">
@@ -274,7 +275,7 @@
                         icon="el-icon-circle-close"
                         @click="handleCancel(scope.row)"
                     >
-                        取消
+                        取消完成
                     </el-button>
 
                     <el-button
@@ -306,6 +307,14 @@
                         v-hasPermi="['customer:CustomerList:send']"
                     >
                         派单
+                    </el-button>
+                    <el-button
+                        size="mini"
+                        type="text"
+                        icon="el-icon-coin"
+                        @click="handlePerformance('performance', scope.row)"
+                    >
+                        算绩效
                     </el-button>
                 </template>
             </el-table-column>
@@ -527,6 +536,27 @@
                 <el-button @click="cancelDataScope">取 消</el-button>
             </div>
         </el-dialog>
+        <!-- 纳入绩效 -->
+        <el-dialog title="纳入绩效" :visible.sync="openPerformance" width="500px" append-to-body>
+            <el-form :model="performanceForm" label-width="100px">
+                <el-form-item label="负责人" prop="name">
+                    <el-input v-model="performanceForm.name"></el-input>
+                </el-form-item>
+                <el-form-item label="已付费" prop="name">
+                    <el-input v-model="performanceForm.name"></el-input>
+                </el-form-item>
+                <el-form-item label="提成比例" prop="name">
+                    <el-input v-model="performanceForm.name"></el-input>
+                </el-form-item>
+                <el-form-item label="提成金额" prop="name">
+                    <el-input v-model="performanceForm.name"></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="submitPerformance">提 交</el-button>
+                <el-button @click="cancelPerformance">取 消</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
@@ -658,6 +688,9 @@
                     },
                 ],
                 principalUserList: [], //负责人列表
+                // 纳入绩效表单
+                performanceForm: {},
+                openPerformance: false,
             };
         },
         computed: {
@@ -802,6 +835,16 @@
                 this.title = type == 'finish' ? '结单' : type == 'send' ? '派单' : '追加';
                 this.openDataScope = true;
                 this.isPrincipal = type !== 'send';
+            },
+            handlePerformance() {
+                this.openPerformance = true;
+            },
+            submitPerformance() {
+                this.$modal.msgSuccess('纳入绩效成功');
+                this.openPerformance = false;
+            },
+            cancelPerformance() {
+                this.openPerformance = false;
             },
 
             // 取消按钮（数据权限）
