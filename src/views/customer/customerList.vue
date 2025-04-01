@@ -537,19 +537,52 @@
             </div>
         </el-dialog>
         <!-- 纳入绩效 -->
-        <el-dialog title="纳入绩效" :visible.sync="openPerformance" width="500px" append-to-body>
-            <el-form :model="performanceForm" label-width="100px">
-                <el-form-item label="负责人" prop="name">
-                    <el-input v-model="performanceForm.name"></el-input>
+        <el-dialog
+            @close="cancelPerformance"
+            title="纳入绩效"
+            :visible.sync="openPerformance"
+            width="500px"
+            append-to-body
+        >
+            <el-form :model="performanceForm" :rules="performanceFormRules" ref="performanceForm" label-width="120px">
+                <el-form-item label="负责人：" prop="principalUserId">
+                    <el-select
+                        class="w100"
+                        v-model="performanceForm.principalUserId"
+                        placeholder="请选择负责人"
+                        :disabled="isPrincipal"
+                        clearable
+                    >
+                        <el-option
+                            v-for="(item, index) in principalUserList"
+                            :key="index"
+                            :label="item.userName"
+                            :value="item.userId"
+                        >
+                        </el-option>
+                    </el-select>
                 </el-form-item>
-                <el-form-item label="已付费" prop="name">
-                    <el-input v-model="performanceForm.name"></el-input>
+                <el-form-item label="当前付费金额：" prop="payment">
+                    <el-input-number
+                        class="w100"
+                        v-model="performanceForm.payment"
+                        controls-position="right"
+                        @change="handleChange"
+                        :precision="2"
+                        :step="1"
+                        :min="0"
+                        :max="50000"
+                    ></el-input-number>
                 </el-form-item>
-                <el-form-item label="提成比例" prop="name">
-                    <el-input v-model="performanceForm.name"></el-input>
+                <el-form-item label="提成比例：" prop="ratio">
+                    <el-input @blur="handleChange" v-model.number="performanceForm.ratio">
+                        <template slot="append">%</template>
+                    </el-input>
                 </el-form-item>
-                <el-form-item label="提成金额" prop="name">
-                    <el-input v-model="performanceForm.name"></el-input>
+                <el-form-item label="提成金额：" prop="money">
+                    <el-input readonly v-model="performanceForm.money">
+                        <template slot="append">¥</template>
+                    </el-input>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
@@ -567,7 +600,15 @@
 
     export default {
         name: 'customerList',
+
         data() {
+            const positive_integer_reg = /^(0|100|[1-9][0-9]?)$/;
+            var checkRatio = (rule, value, callback) => {
+                if (!positive_integer_reg.test(value)) {
+                    return callback(new Error('请输入正确的比例'));
+                }
+                callback();
+            };
             return {
                 // 遮罩层
                 loading: true,
@@ -689,7 +730,17 @@
                 ],
                 principalUserList: [], //负责人列表
                 // 纳入绩效表单
-                performanceForm: {},
+                performanceForm: {
+                    principalUserId: undefined,
+                    payment: null,
+                    ratio: null,
+                    money: null,
+                },
+                performanceFormRules: {
+                    principalUserId: [{ required: true, message: '请选择负责人', trigger: 'change' }],
+                    ratio: [{ required: true, validator: checkRatio, trigger: 'blur' }],
+                    payment: [{ required: true, message: '请输入当前付费金额', trigger: 'blur' }],
+                },
                 openPerformance: false,
             };
         },
@@ -837,14 +888,29 @@
                 this.isPrincipal = type !== 'send';
             },
             handlePerformance() {
+                this.initprincipalUserList();
                 this.openPerformance = true;
+                this.$nextTick(() => {
+                    this.$refs.performanceForm.clearValidate();
+                });
+            },
+            handleChange() {
+                this.performanceForm.money = (
+                    (this.performanceForm.payment * this.performanceForm.ratio) /
+                    100
+                ).toFixed(2);
             },
             submitPerformance() {
-                this.$modal.msgSuccess('纳入绩效成功');
-                this.openPerformance = false;
+                this.$refs.performanceForm.validate(valid => {
+                    if (valid) {
+                        this.$modal.msgSuccess('纳入绩效成功');
+                        this.openPerformance = false;
+                    }
+                });
             },
             cancelPerformance() {
                 this.openPerformance = false;
+                this.resetForm('performanceForm');
             },
 
             // 取消按钮（数据权限）
