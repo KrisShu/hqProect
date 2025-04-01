@@ -767,30 +767,11 @@
             /** 新增按钮操作 */
             handleAdd() {
                 this.reset();
-                // this.getMenuTreeselect();
-                console.log('当前的用户id', this.$store.state.user.id);
+
                 let currid = this.$store.state.user.id;
 
                 this.customerForm.salesmanUserId =
                     this.$store.getters.salesmanUserList.find(item => item.userId == currid)?.userId ?? undefined;
-                // let _this = this;
-                // const id =
-                // this.$store.getters.salesmanUserList.forEach(item => {
-                //     console.log(
-                //         'itemitemitem',
-                //         item.userId,
-                //         this.$store.state.user.id,
-                //         item.userId == _this.$store.state.user.id,
-                //     );
-
-                //     if (item.userId == this.$store.state.user.userId) {
-                //         // this.customerForm.salesmanUserId = item.userId;
-                //         console.log('7887878');
-                //     }
-
-                // });
-                // console.log('id', id);
-                console.log('this.customerForm.salesmanUserId', this.customerForm.salesmanUserId);
                 this.open = true;
                 this.title = '添加客户';
             },
