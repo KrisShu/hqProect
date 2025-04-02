@@ -6,7 +6,12 @@
                     <div class="lael-input">月份：</div>
                 </div>
                 <div class="vlue-box">
-                    <el-date-picker v-model="queryParams.year_month" type="month" placeholder="选择月">
+                    <el-date-picker
+                        :clearable="false"
+                        v-model="queryParams.year_month"
+                        type="month"
+                        placeholder="选择月"
+                    >
                     </el-date-picker>
                 </div>
             </el-col>
@@ -17,11 +22,6 @@
             </el-col>
         </el-row>
         <el-row :gutter="10" class="mb8">
-            <el-col :span="1.5">
-                <el-button type="primary" plain icon="el-icon-plus" size="mini" @click="handleRules"
-                    >绩效规则</el-button
-                >
-            </el-col>
             <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
         </el-row>
         <!-- 表格 -->
@@ -109,7 +109,7 @@
                     pageNum: 1,
                     pageSize: 10,
                     type: 3, //负责人3
-                    year_month: undefined,
+                    year_month: this.parseTime(new Date(), '{y}-{m}'),
                 },
                 centerDialogVisible: false,
                 dataForm: {
@@ -126,7 +126,6 @@
             this.getList();
         },
         methods: {
-            handleRules() {},
             validateValue(rule, value, callback) {
                 const reg = /^\d+(\.\d{1,2})?$/;
                 // console.log('rule', rule);
@@ -163,14 +162,21 @@
 
             /** 搜索按钮操作 */
             handleQuery() {
-                console.log(this.queryParams.year_month);
                 this.queryParams.pageNum = 1;
-                // this.getList();
+                const newArr = this.queryParams.year_month ? this.queryParams.year_month.split('-') : '';
+                if (newArr) {
+                    this.queryParams.year = newArr[0];
+                    this.queryParams.month = newArr[1].replace(/^0+/, ''); // 示例: '003' → '3'
+                } else {
+                    this.queryParams.year = undefined;
+                    this.queryParams.month = undefined;
+                }
+                this.getList();
             },
             /** 重置按钮操作 */
             resetQuery() {
                 this.queryParams.pageNum = 1;
-                this.queryParams.year_month = undefined;
+                this.queryParams.year_month = this.parseTime(new Date(), '{y}-{m}');
                 this.handleQuery();
             },
             changeMoneny(data) {
@@ -209,9 +215,13 @@
                                 id: this.dataForm.id,
                             });
                         } else if (this.title === '修改基础工资') {
+                            this.formatDate();
                             apiPromise = API.editBasicWage({
                                 basicWage: this.dataForm.value,
                                 id: this.dataForm.id,
+                                year: this.queryParams.year,
+                                month: this.queryParams.month,
+                                type: this.queryParams.type,
                             });
                         }
 
@@ -250,19 +260,26 @@
                 });
                 return sums;
             },
+            formatDate() {
+                const newArr = this.queryParams.year_month ? this.queryParams.year_month.split('-') : '';
+                if (newArr) {
+                    this.queryParams.year = newArr[0];
+                    this.queryParams.month = newArr[1].replace(/^0+/, ''); // 示例: '003' → '3'
+                } else {
+                    this.queryParams.year = undefined;
+                    this.queryParams.month = undefined;
+                }
+            },
             // 查看具体详情
             handelDetails(item) {
-                // this.$router.push({
-                //     path: '/customer/CustomerDetail',
-                //     query: {
-                //         details: JSON.stringify(item),
-                //         type: 'customer',
-                //     },
-                // });
+                this.formatDate();
                 this.$router.push({
                     path: '/workPerformance/detailsList',
                     query: {
-                        id: item.id,
+                        userId: item.userId,
+                        year: this.queryParams.year,
+                        month: this.queryParams.month,
+                        type: this.queryParams.type,
                     },
                 });
             },
@@ -278,6 +295,28 @@
             font-size: 14px;
             line-height: 36px;
             text-align: right;
+        }
+    }
+
+    .endAmount {
+        .el-form-item__content {
+            margin-left: 10px !important;
+            position: relative;
+            &:before {
+                content: '-';
+                display: inline-block;
+
+                position: absolute;
+                top: 0px;
+                left: -10px;
+            }
+        }
+    }
+    .ratio {
+        .el-input-group--append {
+            .el-input-group__append {
+                padding: 0 2px !important;
+            }
         }
     }
 </style>

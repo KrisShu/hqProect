@@ -308,7 +308,13 @@
                     >
                         派单
                     </el-button>
-                    <el-button size="mini" type="text" icon="el-icon-coin" @click="handlePerformance(scope.row)">
+                    <el-button
+                        size="mini"
+                        type="text"
+                        icon="el-icon-coin"
+                        @click="handlePerformance(scope.row)"
+                        v-hasPermi="['customer:CustomerList:performance']"
+                    >
                         算绩效
                     </el-button>
                 </template>
@@ -359,8 +365,9 @@
                         :max="50000"
                     ></el-input-number>
                 </el-form-item>
-                <el-form-item label="已付款" prop="paidAmount">
+                <el-form-item v-show="title == '编辑客户'" label="已付款" prop="paidAmount">
                     <el-input-number
+                        :disabled="true"
                         class="w100"
                         v-model="customerForm.paidAmount"
                         controls-position="right"
@@ -370,7 +377,7 @@
                         :max="50000"
                     ></el-input-number>
                 </el-form-item>
-                <el-form-item label="未付款" prop="finalPayment">
+                <el-form-item v-show="title == '编辑客户'" label="未付款" prop="finalPayment">
                     <el-input-number
                         class="w100"
                         :value="finalPayment"
@@ -447,7 +454,7 @@
         </el-dialog>
 
         <!-- 结单&派单弹窗 -->
-        <el-dialog :title="title" :visible.sync="openDataScope" width="500px" append-to-body>
+        <el-dialog :title="title" :visible.sync="openDataScope" width="610px" append-to-body>
             <el-form :model="detailsForm" label-width="100px">
                 <div class="flex-wrap lable-item">
                     <div class="label-box">单号：</div>
@@ -536,36 +543,55 @@
             @close="cancelPerformance"
             title="纳入绩效"
             :visible.sync="openPerformance"
-            width="500px"
+            width="600px"
             append-to-body
         >
-            <el-form :model="performanceForm" :rules="performanceFormRules" ref="performanceForm" label-width="120px">
-                <el-form-item label="负责人：" prop="principalUserName">
-                    <el-input readonly v-model="performanceForm.principalUserName"> </el-input>
-                </el-form-item>
-                <el-form-item label="当前付费金额：" prop="payment">
-                    <el-input-number
-                        class="w100"
-                        v-model="performanceForm.payment"
-                        controls-position="right"
-                        @change="handleChange"
-                        :precision="2"
-                        :step="1"
-                        :min="0"
-                        :max="50000"
-                    ></el-input-number>
-                </el-form-item>
-                <el-form-item label="提成比例：" prop="ratio">
-                    <el-input @blur="handleChange" v-model.number="performanceForm.ratio">
-                        <template slot="append">%</template>
-                    </el-input>
-                </el-form-item>
-                <el-form-item label="提成金额：" prop="money">
-                    <el-input readonly v-model="performanceForm.money">
-                        <template slot="append">¥</template>
-                    </el-input>
-                </el-form-item>
-            </el-form>
+            <div>
+                <el-card class="box-card mb20">
+                    <ul class="card-list">
+                        <li class="mb6" v-for="(item, index) in royaltyCalculationList">
+                            <span>{{ item.createTime }}:</span>
+                            <span class="ml20">交易金额：{{ item.money }}</span>
+                            <span class="ml20">提成比例：{{ item.commissionRate }}</span>
+                            <span class="ml20">提成金额：{{ item.commissionAmount }}</span>
+                        </li>
+                    </ul>
+                </el-card>
+
+                <el-form
+                    :model="performanceForm"
+                    :rules="performanceFormRules"
+                    ref="performanceForm"
+                    label-width="120px"
+                >
+                    <el-form-item label="负责人：" prop="principalUserName">
+                        <el-input readonly v-model="performanceForm.principalUserName"> </el-input>
+                    </el-form-item>
+                    <el-form-item label="当前付费金额：" prop="payment">
+                        <el-input-number
+                            class="w100"
+                            v-model="performanceForm.payment"
+                            controls-position="right"
+                            @change="handleChange"
+                            :precision="2"
+                            :step="1"
+                            :min="0"
+                            :max="50000"
+                        ></el-input-number>
+                    </el-form-item>
+                    <el-form-item label="提成比例：" prop="ratio">
+                        <el-input @blur="handleChange" v-model.number="performanceForm.ratio">
+                            <template slot="append">%</template>
+                        </el-input>
+                    </el-form-item>
+                    <el-form-item label="提成金额：" prop="money">
+                        <el-input readonly v-model="performanceForm.money">
+                            <template slot="append">¥</template>
+                        </el-input>
+                    </el-form-item>
+                </el-form>
+            </div>
+
             <div slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="submitPerformance">提 交</el-button>
                 <el-button @click="cancelPerformance">取 消</el-button>
@@ -726,6 +752,7 @@
                     payment: [{ required: true, message: '请输入当前付费金额', trigger: 'blur' }],
                 },
                 openPerformance: false,
+                royaltyCalculationList: [], // 绩效计算列表
             };
         },
         computed: {
@@ -881,8 +908,15 @@
                     this.performanceForm.principalUserId = item.principalUserId;
                     this.performanceForm.principalUserName = item.principalUserName;
                     this.performanceForm.orderNumber = item.orderNumber;
-
+                    this.getRoyaltyCalculationList();
                     console.log('performanceForm', this.performanceForm);
+                });
+            },
+            getRoyaltyCalculationList() {
+                API.getRoyaltyCalculation({
+                    id: this.performanceForm.id,
+                }).then(res => {
+                    this.royaltyCalculationList = res.rows;
                 });
             },
             handleChange() {
@@ -1095,5 +1129,12 @@
     }
     .el-dialog__header {
         background-color: aliceblue;
+    }
+
+    .card-list {
+        // padding: 0px 10px;
+        margin: 0;
+        max-height: 200px;
+        overflow-y: auto;
     }
 </style>

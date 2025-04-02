@@ -33,9 +33,28 @@ export function fetchDetail(data) {
         data,
     });
 }
+
+// 获取列表
+export function fetchRulesList(data) {
+    return request({
+        url: '/system/commissionConfig/list',
+        method: 'get',
+    });
+}
+
+// 编辑
+export function editRules(data) {
+    return request({
+        url: '/system/commissionConfig/edit',
+        method: 'post',
+        data,
+    });
+}
 export default {
     fetchList,
     editBasicWage,
     editCommissionRate,
     fetchDetail,
+    fetchRulesList,
+    editRules,
 };

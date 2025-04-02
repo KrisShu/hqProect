@@ -22,6 +22,18 @@
             </el-col>
         </el-row>
         <el-row :gutter="10" class="mb8">
+            <el-col :span="1.5">
+                <el-button
+                    type="primary"
+                    plain
+                    icon="el-icon-s-finance"
+                    size="mini"
+                    @click="handleRules"
+                    v-hasperm="['workPerformance:staff:rules']"
+                >
+                    绩效规则
+                </el-button>
+            </el-col>
             <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
         </el-row>
         <!-- 表格 -->
@@ -34,6 +46,12 @@
                     <el-tooltip class="item" effect="dark" content="都以本月结单了的客户计算" placement="top-start">
                         <span>负责的客户<i class="el-icon-question"></i></span>
                     </el-tooltip>
+                </template>
+
+                <template slot-scope="scope">
+                    <el-link @click="handelDetails(scope.row)" type="primary" icon="el-icon-edit">
+                        {{ scope.row.num }}
+                    </el-link>
                 </template>
             </el-table-column>
 
@@ -83,6 +101,64 @@
                 <el-button type="primary" @click="submitForm">确 定</el-button>
             </span>
         </el-dialog>
+        <!-- 绩效规则 -->
+        <el-dialog :close-on-click-modal="false" title="绩效规则" :visible.sync="rulesVisible" width="40%" center>
+            <el-form ref="performanceForm" :model="performanceForm" label-width="100px">
+                <div v-for="(item, index) in performanceForm.performanceList" :key="index" class="rule-item">
+                    <el-row :gutter="10">
+                        <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
+                            <el-form-item
+                                :label="index === 0 ? '金额范围：' : ''"
+                                :prop="'performanceList.' + index + '.minMoney'"
+                                :rules="performanceRules.minMoney"
+                            >
+                                <el-input v-model="item.minMoney" placeholder="起始金额" type="number">
+                                    <!-- <template slot="prepend">￥</template> -->
+                                </el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :xs="24" :sm="24" :md="5" :lg="5" :xl="5">
+                            <el-form-item
+                                class="endAmount"
+                                :prop="'performanceList.' + index + '.maxMoney'"
+                                :rules="performanceRules.maxMoney"
+                            >
+                                <el-input v-model="item.maxMoney" placeholder="结束金额" type="number">
+                                    <!-- <template slot="prepend">￥</template> -->
+                                </el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :xs="20" :sm="20" :md="7" :lg="7" :xl="7">
+                            <el-form-item
+                                :label="index === 0 ? '提成比例：' : ''"
+                                :prop="'performanceList.' + index + '.commissionRate'"
+                                :rules="performanceRules.commissionRate"
+                                class="ratio"
+                            >
+                                <el-input v-model="item.commissionRate" placeholder="比例">
+                                    <template slot="append">%</template>
+                                </el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :xs="4" :sm="4" :md="3" :lg="3" :xl="3">
+                            <el-button
+                                v-if="index !== performanceForm.performanceList.length - 1"
+                                type="danger"
+                                icon="el-icon-delete"
+                                circle
+                                @click="removeRule(index)"
+                            >
+                            </el-button>
+                            <el-button v-else type="primary" icon="el-icon-plus" circle @click="addRule"> </el-button>
+                        </el-col>
+                    </el-row>
+                </div>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="cancelRules">取 消</el-button>
+                <el-button type="primary" @click="saveRules">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -92,6 +168,83 @@
         name: 'ingList',
         components: {},
         data() {
+            // 验证金额范围的规则 - 起始金额
+            const validateStartAmount = (rule, value, callback) => {
+                let index = 0;
+                try {
+                    const matches = rule.field.match(/\d+/);
+                    index = matches ? parseInt(matches[0]) : 0;
+                } catch (err) {
+                    console.error('Parse index error:', err);
+                    callback(new Error('验证规则错误'));
+                    return;
+                }
+
+                const item = this.performanceForm.performanceList[index];
+
+                if (value === '' || value === null) {
+                    callback(new Error('请输入起始金额'));
+                    return;
+                }
+
+                const numValue = parseFloat(value);
+                if (!/^\d+(\.\d{0,2})?$/.test(value)) {
+                    callback(new Error('请输入正确的金额格式(最多两位小数)'));
+                    return;
+                }
+
+                // 检查与上一行的关系
+                if (index > 0) {
+                    const prevItem = this.performanceForm.performanceList[index - 1];
+                    if (prevItem.maxMoney && numValue < parseFloat(prevItem.maxMoney)) {
+                        callback(new Error('起始金额必须大于上一行的结束金额'));
+                        return;
+                    }
+                }
+
+                callback();
+            };
+            // 验证金额范围的规则 - 结束金额
+            const validateEndAmount = (rule, value, callback) => {
+                let index = 0;
+                try {
+                    const matches = rule.field.match(/\d+/);
+                    index = matches ? parseInt(matches[0]) : 0;
+                } catch (err) {
+                    console.error('Parse index error:', err);
+                    callback(new Error('验证规则错误'));
+                    return;
+                }
+                const item = this.performanceForm.performanceList[index];
+
+                if (value === '' || value === null) {
+                    callback(new Error('请输入结束金额'));
+                    return;
+                }
+
+                if (!/^\d+(\.\d{0,2})?$/.test(value)) {
+                    callback(new Error('请输入正确的金额格式(最多两位小数)'));
+                    return;
+                }
+
+                // 检查与当前行起始金额的关系
+                if (item.minMoney && parseFloat(value) <= parseFloat(item.minMoney)) {
+                    callback(new Error('结束金额必须大于起始金额'));
+                    return;
+                }
+
+                callback();
+            };
+            // 验证比例的规则
+            const validateRatio = (rule, value, callback) => {
+                if (value === '' || value === null) {
+                    callback(new Error('请输入比例'));
+                } else if (!/^(100|[1-9]?\d)$/.test(value)) {
+                    callback(new Error('请输入0-100的正整数'));
+                } else {
+                    callback();
+                }
+            };
             return {
                 // 遮罩层
                 loading: false,
@@ -117,11 +270,19 @@
                 },
                 title: '修改基本工资',
                 unit: '元',
+                performanceRules: {
+                    minMoney: [{ required: true, validator: validateStartAmount, trigger: ['blur', 'change'] }],
+                    maxMoney: [{ required: true, validator: validateEndAmount, trigger: ['blur', 'change'] }],
+                    commissionRate: [{ required: true, validator: validateRatio, trigger: 'blur' }],
+                },
+                performanceForm: {
+                    performanceList: [], // 绩效规则列表
+                },
+
+                rulesVisible: false,
             };
         },
         created() {
-            // const timenow = this.parseTime(new Date(), '{y}-{m}');
-            // console.log('2222222222222', timenow);
             this.getList();
         },
         methods: {
@@ -167,7 +328,7 @@
                 const newArr = this.queryParams.year_month ? this.queryParams.year_month.split('-') : '';
                 if (newArr) {
                     this.queryParams.year = newArr[0];
-                    this.queryParams.month = newArr[1];
+                    this.queryParams.month = newArr[1].replace(/^0+/, ''); // 示例: '003' → '3'
                 } else {
                     this.queryParams.year = undefined;
                     this.queryParams.month = undefined;
@@ -218,9 +379,13 @@
                                 id: this.dataForm.id,
                             });
                         } else if (this.title === '修改基础工资') {
+                            this.formatDate();
                             apiPromise = API.editBasicWage({
                                 basicWage: this.dataForm.value,
                                 id: this.dataForm.id,
+                                year: this.queryParams.year,
+                                month: this.queryParams.month,
+                                type: this.queryParams.type,
                             });
                         }
 
@@ -258,6 +423,113 @@
                     }
                 });
                 return sums;
+            },
+            formatDate() {
+                const newArr = this.queryParams.year_month ? this.queryParams.year_month.split('-') : '';
+                if (newArr) {
+                    this.queryParams.year = newArr[0];
+                    this.queryParams.month = newArr[1].replace(/^0+/, ''); // 示例: '003' → '3'
+                } else {
+                    this.queryParams.year = undefined;
+                    this.queryParams.month = undefined;
+                }
+            },
+            handelDetails(item) {
+                this.formatDate();
+                this.$router.push({
+                    path: '/workPerformance/detailsList',
+                    query: {
+                        userId: item.userId,
+                        year: this.queryParams.year,
+                        month: this.queryParams.month,
+                        type: this.queryParams.type,
+                    },
+                });
+            },
+            handleRules() {
+                this.fetchRulesListEvent();
+                this.rulesVisible = true;
+
+                if (this.performanceForm.performanceList.length <= 0) {
+                    this.performanceForm.performanceList = [
+                        {
+                            minMoney: '',
+                            maxMoney: '',
+                            commissionRate: '',
+                        },
+                    ];
+                }
+            },
+            // 添加规则
+            addRule() {
+                if (this.performanceForm.performanceList.length >= 10) {
+                    this.$message.warning('最多添加10条规则');
+                    return;
+                }
+                // 获取上一条规则的结束金额
+                const lastRule = this.performanceForm.performanceList[this.performanceForm.performanceList.length - 1];
+                const startAmount = lastRule ? parseFloat(lastRule.maxMoney) : 0;
+
+                this.performanceForm.performanceList.push({
+                    minMoney: startAmount || '',
+                    maxMoney: '',
+                    commissionRate: '',
+                });
+            },
+            async fetchRulesListEvent() {
+                let res = await API.fetchRulesList();
+                console.log('res', res);
+                if (res.code !== 200) {
+                    this.$message.error(res.msg);
+                    return;
+                }
+
+                this.performanceForm.performanceList = res.rows;
+            },
+
+            // 删除规则
+            removeRule(index) {
+                this.performanceForm.performanceList.splice(index, 1);
+            },
+
+            // 验证并保存规则
+            saveRules() {
+                // 这里添加保存逻辑
+                this.$refs.performanceForm.validate(valid => {
+                    if (valid) {
+                        // 额外验证整体的连续性
+                        let isValid = true;
+                        for (let i = 0; i < this.performanceForm.performanceList.length - 1; i++) {
+                            const currentEnd = parseFloat(this.performanceForm.performanceList[i].maxMoney);
+                            const nextStart = parseFloat(this.performanceForm.performanceList[i + 1].minMoney);
+                            if (nextStart < currentEnd) {
+                                isValid = false;
+                                this.$message.error(`第${i + 2}行的起始金额必须大于第${i + 1}行的结束金额`);
+                                break;
+                            }
+                        }
+
+                        if (isValid) {
+                            // 执行保存操作
+                            console.log('验证通过，可以保存', this.performanceForm.performanceList);
+                            API.editRules(this.performanceForm.performanceList).then(res => {
+                                if (res.code === 200) {
+                                    this.$message.success('保存成功');
+                                    this.rulesVisible = false;
+                                    this.getList();
+                                } else {
+                                    this.$message.error(res.msg);
+                                }
+                            });
+                        }
+                    } else {
+                        this.$message.error('请检查表单填写是否正确');
+                        return false;
+                    }
+                });
+            },
+            cancelRules() {
+                this.rulesVisible = false;
             },
         },
     };

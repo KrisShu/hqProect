@@ -97,6 +97,15 @@ export function royaltyCalculation(data) {
         data: data,
     });
 }
+
+// 佣金计算
+export function getRoyaltyCalculation(data) {
+    return request({
+        url: '/system/order/getRoyaltyCalculation',
+        method: 'post',
+        data: data,
+    });
+}
 export default {
     fetchList,
     addOrder,
@@ -110,4 +119,5 @@ export default {
     recordList,
     testUser,
     royaltyCalculation,
+    getRoyaltyCalculation,
 };

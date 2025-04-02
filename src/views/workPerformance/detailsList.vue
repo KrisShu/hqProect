@@ -57,7 +57,6 @@
 
 <script>
     import API from '@/api/workPerformanceApi';
-    import { create } from 'sortablejs';
     export default {
         name: 'detailsList',
 
@@ -68,8 +67,11 @@
                 dataList: [],
                 total: 0,
                 queryParams: {
-                    performance_id: this.$route.query.id,
-                    order_number: '',
+                    userId: Number(this.$route.query.userId),
+                    year: this.$route.query.year,
+                    month: this.$route.query.month,
+                    type: Number(this.$route.query.type),
+                    orderNumber: '',
                     create_time: '',
                     pageNum: 1,
                     pageSize: 10,
@@ -85,13 +87,10 @@
                 this.getList();
             },
             resetQuery() {
-                this.queryParams = {
-                    performance_id: this.$route.query.id,
-                    order_number: '',
-                    create_time: '',
-                    pageNum: 1,
-                    pageSize: 10,
-                };
+                this.queryParams.orderNumber = '';
+                this.queryParams.create_time = '';
+                this.queryParams.pageNum = 1;
+                this.queryParams.pageSize = 10;
                 this.getList();
             },
             getList() {
