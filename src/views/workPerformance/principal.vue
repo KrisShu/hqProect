@@ -36,7 +36,7 @@
                     </el-tooltip>
                 </template>
                 <template slot-scope="scope">
-                    <el-link @click="handelDetails(scope.row)" type="primary" icon="el-icon-edit">
+                    <el-link @click="handelDetails(scope.row)" type="primary" icon="el-icon-user">
                         {{ scope.row.num }}
                     </el-link>
                 </template>
@@ -152,6 +152,7 @@
                 }
             },
             getList() {
+                this.formatDate();
                 this.loading = true;
                 API.fetchList(this.queryParams).then(res => {
                     this.dataList = res.rows;
@@ -163,14 +164,7 @@
             /** 搜索按钮操作 */
             handleQuery() {
                 this.queryParams.pageNum = 1;
-                const newArr = this.queryParams.year_month ? this.queryParams.year_month.split('-') : '';
-                if (newArr) {
-                    this.queryParams.year = newArr[0];
-                    this.queryParams.month = newArr[1].replace(/^0+/, ''); // 示例: '003' → '3'
-                } else {
-                    this.queryParams.year = undefined;
-                    this.queryParams.month = undefined;
-                }
+
                 this.getList();
             },
             /** 重置按钮操作 */
@@ -216,12 +210,15 @@
                             });
                         } else if (this.title === '修改基础工资') {
                             this.formatDate();
+                            console.log('this.dataForm', this.dataForm);
+                            console.log('this.queryParams', this.queryParams);
                             apiPromise = API.editBasicWage({
                                 basicWage: this.dataForm.value,
                                 id: this.dataForm.id,
                                 year: this.queryParams.year,
                                 month: this.queryParams.month,
                                 type: this.queryParams.type,
+                                userId: this.dataForm.userId,
                             });
                         }
 

@@ -188,7 +188,7 @@
                         <el-tag
                             effect="dark"
                             v-else-if="(new Date(scope.row.releasedTime) - new Date()) / (1000 * 60 * 60) <= 24"
-                            type="info"
+                            type="primary"
                             size="mini"
                         >
                             紧急
@@ -392,13 +392,13 @@
 
 <style>
     .el-table .danger-row {
-        background-color: #f56c6c;
+        background-color: rgb(253, 226, 226);
     }
     .el-table .warning-row {
-        background: #e6a23c;
+        background: rgb(250, 236, 216);
     }
 
     .el-table .info-row {
-        background: #909399;
+        background: rgb(198, 226, 255);
     }
 </style>

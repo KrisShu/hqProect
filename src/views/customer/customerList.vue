@@ -227,7 +227,7 @@
                         删除：所有角色                    未派单的状态才能点击删除
                         完成: 负责人管理员、业务管理员    已派单的状态才能点击已完成
                     取消完成：负责人管理员、业务管理员    已完成的状态才能点击取消完成
-                        追加：负责人管理员、业务管理员    只有结单的不能追加
+                        收款：负责人管理员、业务管理员    只有结单的不能追加
                         结单：负责人管理员、业务管理员    客户订单已完成状态才能点击结单
                         派单：负责人管理员、业务管理员    客户订单未派单状态才能点击派单
                     纳入绩效：
@@ -286,7 +286,7 @@
                         icon="el-icon-circle-plus-outline"
                         @click="handleOrder('additionalAmount', scope.row)"
                     >
-                        追加
+                        收款
                     </el-button>
                     <el-button
                         v-show="scope.row.orderState == 4"
@@ -356,7 +356,7 @@
                 </el-form-item>
                 <el-form-item label="交易金额" prop="totalAmount">
                     <el-input-number
-                        class="w100"
+                        class="w100 input-number"
                         v-model="customerForm.totalAmount"
                         controls-position="right"
                         :precision="2"
@@ -368,7 +368,7 @@
                 <el-form-item v-show="title == '编辑客户'" label="已付款" prop="paidAmount">
                     <el-input-number
                         :disabled="true"
-                        class="w100"
+                        class="w100 input-number"
                         v-model="customerForm.paidAmount"
                         controls-position="right"
                         :precision="2"
@@ -379,7 +379,7 @@
                 </el-form-item>
                 <el-form-item v-show="title == '编辑客户'" label="未付款" prop="finalPayment">
                     <el-input-number
-                        class="w100"
+                        class="w100 input-number"
                         :value="finalPayment"
                         controls-position="right"
                         :precision="2"
@@ -458,7 +458,7 @@
             <el-form :model="detailsForm" label-width="100px">
                 <div class="flex-wrap lable-item">
                     <div class="label-box">单号：</div>
-                    <div class="vlue-box">1111</div>
+                    <div class="vlue-box">{{ detailsForm.orderNumber }}</div>
                 </div>
                 <div class="flex-wrap lable-item">
                     <div class="label-box">客户概况：</div>
@@ -516,10 +516,10 @@
                         </el-option>
                     </el-select>
                 </el-form-item>
-                <template v-if="title == '追加'">
-                    <el-form-item label="追加金额：">
+                <template v-if="title == '收款'">
+                    <el-form-item label="收款金额：">
                         <el-input-number
-                            class="w100"
+                            class="w100 input-number"
                             v-model="detailsForm.amount"
                             controls-position="right"
                             :precision="2"
@@ -547,11 +547,11 @@
             append-to-body
         >
             <div>
-                <el-card class="box-card mb20">
+                <el-card v-show="royaltyCalculationList.length" class="box-card mb20">
                     <ul class="card-list">
                         <li class="mb6" v-for="(item, index) in royaltyCalculationList">
                             <span>{{ item.createTime }}:</span>
-                            <span class="ml20">交易金额：{{ item.money }}</span>
+                            <span class="ml20">金额：{{ item.money }}</span>
                             <span class="ml20">提成比例：{{ item.commissionRate }}</span>
                             <span class="ml20">提成金额：{{ item.commissionAmount }}</span>
                         </li>
@@ -567,9 +567,9 @@
                     <el-form-item label="负责人：" prop="principalUserName">
                         <el-input readonly v-model="performanceForm.principalUserName"> </el-input>
                     </el-form-item>
-                    <el-form-item label="当前付费金额：" prop="payment">
+                    <el-form-item label="金额：" prop="payment">
                         <el-input-number
-                            class="w100"
+                            class="w100 input-number"
                             v-model="performanceForm.payment"
                             controls-position="right"
                             @change="handleChange"
@@ -695,7 +695,7 @@
                     sourceWx: undefined, //接单微信
                     salesmanUserId: undefined, //业务员
                     remark: undefined, //备注
-                    amount: undefined, //追加金额
+                    amount: undefined, //收款金额
                 }, //结单&派单数据
                 isPrincipal: false, //是否禁用负责人
                 pickerOptions: {
@@ -894,7 +894,7 @@
                     amount: undefined,
                 });
 
-                this.title = type == 'finish' ? '结单' : type == 'send' ? '派单' : '追加';
+                this.title = type == 'finish' ? '结单' : type == 'send' ? '派单' : '收款';
                 this.openDataScope = true;
                 this.isPrincipal = type !== 'send';
             },
@@ -1027,9 +1027,9 @@
                         this.openDataScope = false;
                         this.getList();
                     });
-                } else if (this.title == '追加') {
+                } else if (this.title == '收款') {
                     if (this.detailsForm.amount == undefined) {
-                        this.$modal.msgError('请输入追加金额');
+                        this.$modal.msgError('请输入收款金额');
                         return;
                     }
                     const params = {
@@ -1038,7 +1038,7 @@
                         remark: this.detailsForm.remark,
                     };
                     API.additionalAmount(params).then(res => {
-                        this.$modal.msgSuccess('追加成功');
+                        this.$modal.msgSuccess('收款成功');
                         this.openDataScope = false;
                         this.getList();
                     });
@@ -1136,5 +1136,10 @@
         margin: 0;
         max-height: 200px;
         overflow-y: auto;
+    }
+    .input-number {
+        .el-input__inner {
+            text-align: left !important;
+        }
     }
 </style>
