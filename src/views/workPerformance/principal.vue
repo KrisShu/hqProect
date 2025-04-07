@@ -26,8 +26,8 @@
         </el-row>
         <!-- 表格 -->
         <el-table show-summary :summary-method="summaryMethod" v-loading="loading" :data="dataList">
-            <el-table-column type="selection" width="55" align="center" />
-            <el-table-column fixed label="ID" prop="id" width="120" />
+            <!-- <el-table-column type="selection" width="55" align="center" /> -->
+            <!-- <el-table-column fixed label="ID" prop="id" width="120" /> -->
             <el-table-column label="姓名" align="center" prop="userName" />
             <el-table-column label="负责的客户" align="center" prop="num">
                 <template slot="header" slot-scope="scope">

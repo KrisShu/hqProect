@@ -24,8 +24,17 @@ export function fetchCustomerStatistics() {
     });
 }
 
+export function fetchDashboardStatisticsTwo(data) {
+    return request({
+        url: '/system/statistics/dashboardStatisticsTwo',
+        method: 'post',
+        data: data,
+    });
+}
+
 export default {
     fetchDashboardStatistics,
     fetchMonthlyEarningsStatistics,
     fetchCustomerStatistics,
+    fetchDashboardStatisticsTwo,
 };

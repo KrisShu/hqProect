@@ -39,7 +39,7 @@ export function sendOrder(data) {
         data: data,
     });
 }
-// 追加
+// 收款
 export function additionalAmount(data) {
     return request({
         url: '/system/order/additionalAmount',
@@ -47,6 +47,15 @@ export function additionalAmount(data) {
         data: data,
     });
 }
+// 退款
+export function refund(data) {
+    return request({
+        url: '/system/order/refund',
+        method: 'post',
+        data: data,
+    });
+}
+
 //结单
 export function statementOfAccount(data) {
     return request({
@@ -106,6 +115,15 @@ export function getRoyaltyCalculation(data) {
         data: data,
     });
 }
+
+export function fecthTotal(data) {
+    return request({
+        url: '/system/order/total',
+        method: 'post',
+        data: data,
+    });
+}
+
 export default {
     fetchList,
     addOrder,
@@ -120,4 +138,6 @@ export default {
     testUser,
     royaltyCalculation,
     getRoyaltyCalculation,
+    fecthTotal,
+    refund,
 };

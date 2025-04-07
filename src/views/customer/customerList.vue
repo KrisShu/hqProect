@@ -184,12 +184,38 @@
 
             <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
         </el-row>
+        <!-- 总计 -->
+        <el-row class="mb8">
+            <div class="flex-wrap">
+                <p class="lable-wrap flex-wrap">
+                    <span class="lable">交易金额：</span>
+                    <span class="value">{{ totalData.totalAmount || 0 }}元</span>
+                </p>
+                <p class="lable-wrap flex-wrap">
+                    <span class="lable">已收款：</span>
+                    <span class="value">{{ totalData.paidAmount || 0 }}元</span>
+                </p>
+                <p class="lable-wrap flex-wrap">
+                    <span class="lable">未收款：</span>
+                    <span class="value">{{ totalData.balancePayment || 0 }}元</span>
+                </p>
+            </div>
+
+            <el-divider><i class="el-icon-s-operation"></i></el-divider>
+        </el-row>
         <!-- 表格 -->
         <el-table v-loading="loading" :data="customerOrderList" @selection-change="handleSelectionChange">
             <el-table-column type="selection" width="55" align="center" />
             <el-table-column fixed label="单号" prop="orderNumber" width="120" />
             <el-table-column label="客户概况" align="center" prop="customerProfiling" width="250" />
             <el-table-column label="项目概况" align="center" prop="projectSummaryLable" width="250" />
+            <el-table-column label="备注" align="center" prop="remark">
+                <template slot-scope="scope">
+                    <el-tooltip class="item" effect="dark" :content="scope.row.remark" placement="top-start">
+                        <span class="remark-box">{{ scope.row.remark }}</span>
+                    </el-tooltip>
+                </template>
+            </el-table-column>
 
             <el-table-column label="状态" align="center" width="100">
                 <template slot-scope="scope">
@@ -228,6 +254,7 @@
                         完成: 负责人管理员、业务管理员    已派单的状态才能点击已完成
                     取消完成：负责人管理员、业务管理员    已完成的状态才能点击取消完成
                         收款：负责人管理员、业务管理员    只有结单的不能追加
+                        退款：                          只有结单的不能退
                         结单：负责人管理员、业务管理员    客户订单已完成状态才能点击结单
                         派单：负责人管理员、业务管理员    客户订单未派单状态才能点击派单
                     纳入绩效：
@@ -287,6 +314,16 @@
                         @click="handleOrder('additionalAmount', scope.row)"
                     >
                         收款
+                    </el-button>
+                    <el-button
+                        v-show="scope.row.orderState != 5"
+                        v-hasPermi="['customer:CustomerList:refund']"
+                        size="mini"
+                        type="text"
+                        icon="el-icon-bank-card"
+                        @click="handleOrder('refund', scope.row)"
+                    >
+                        退款
                     </el-button>
                     <el-button
                         v-show="scope.row.orderState == 4"
@@ -517,6 +554,19 @@
                     </el-select>
                 </el-form-item>
                 <template v-if="title == '收款'">
+                    <el-form-item label="分类：">
+                        <el-select class="w100" v-model="detailsForm.paymentType" placeholder="请选择分类" clearable>
+                            <el-option
+                                v-for="(item, index) in paymentTypeList"
+                                :key="index"
+                                :label="item.dictLabel"
+                                :value="item.dictValue"
+                            >
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                </template>
+                <template v-if="title == '收款'">
                     <el-form-item label="收款金额：">
                         <el-input-number
                             class="w100 input-number"
@@ -524,11 +574,25 @@
                             controls-position="right"
                             :precision="2"
                             :step="1"
-                            :min="-50000"
-                            :max="50000"
+                            :min="0"
+                            :max="amountMax"
                         ></el-input-number>
                     </el-form-item>
                 </template>
+                <template v-if="title == '退款'">
+                    <el-form-item label="退款金额：">
+                        <el-input-number
+                            class="w100 input-number"
+                            v-model="detailsForm.amount"
+                            controls-position="right"
+                            :precision="2"
+                            :step="1"
+                            :min="0"
+                            :max="amountMax"
+                        ></el-input-number>
+                    </el-form-item>
+                </template>
+
                 <el-form-item label="备注：">
                     <el-input v-model="detailsForm.remark" type="textarea" :rows="2" maxlength="300" show-word-limit />
                 </el-form-item>
@@ -603,7 +667,7 @@
 <script>
     import API from '@/api/customerApi';
     import { orderSateMeta, metaToOptions } from '@/utils/meta';
-    import { fetchprincipalUserList } from '@/api/commApi';
+    import { fetchprincipalUserList, fetchDictType } from '@/api/commApi';
 
     export default {
         name: 'customerList',
@@ -624,6 +688,11 @@
                 // 总条数
                 total: 0,
                 customerOrderList: [],
+                totalData: {
+                    balancePayment: 0,
+                    paidAmount: 0,
+                    totalAmount: 0,
+                },
                 // 弹出层标题
                 title: '',
                 // 是否显示弹出层
@@ -636,11 +705,6 @@
                 queryParams: {
                     pageNum: 1,
                     pageSize: 10,
-                    option1: 'orderNumber',
-                    value1: undefined,
-
-                    option3: 'OrderTime',
-                    value3: [],
                     status: undefined,
 
                     orderNumber: undefined, //单号
@@ -695,9 +759,11 @@
                     sourceWx: undefined, //接单微信
                     salesmanUserId: undefined, //业务员
                     remark: undefined, //备注
+                    paymentType: undefined, //收款类型
                     amount: undefined, //收款金额
                 }, //结单&派单数据
                 isPrincipal: false, //是否禁用负责人
+                amountMax: 0, //收款金额最大值
                 pickerOptions: {
                     shortcuts: [
                         {
@@ -753,6 +819,7 @@
                 },
                 openPerformance: false,
                 royaltyCalculationList: [], // 绩效计算列表
+                paymentTypeList: [], // 收款类型列表
             };
         },
         computed: {
@@ -792,6 +859,7 @@
         },
         created() {
             this.getList();
+            this.initPaymentType();
             // this.testGet();
         },
         methods: {
@@ -811,12 +879,30 @@
                     this.principalUserList = res.rows;
                 });
             },
+            initPaymentType() {
+                fetchDictType('payment_type').then(res => {
+                    console.log('payment_type', res);
+                    const result = res.data;
+                    this.paymentTypeList = result.filter(item => item.dictValue != -1);
+                });
+            },
             getList() {
+                this.getTotal();
                 this.loading = true;
                 API.fetchList(this.queryParams).then(res => {
                     this.customerOrderList = res.rows;
                     this.total = res.total;
                     this.loading = false;
+                });
+            },
+            getTotal() {
+                API.fecthTotal(this.queryParams).then(res => {
+                    this.totalData = res?.data || {
+                        balancePayment: 0,
+                        paidAmount: 0,
+                        totalAmount: 0,
+                    };
+                    console.log('res222', res);
                 });
             },
             /** 搜索按钮操作 */
@@ -893,8 +979,25 @@
                     remark: undefined,
                     amount: undefined,
                 });
+                this.amountMax = row.totalAmount;
 
-                this.title = type == 'finish' ? '结单' : type == 'send' ? '派单' : '收款';
+                // this.title = type == 'finish' ? '结单' : type == 'send' ? '派单' : '收款';
+
+                switch (type) {
+                    case 'finish':
+                        this.title = '结单';
+                        break;
+                    case 'send':
+                        this.title = '派单';
+                        break;
+                    case 'additionalAmount':
+                        this.title = '收款';
+                        break;
+                    case 'refund':
+                        this.title = '退款';
+                        break;
+                }
+
                 this.openDataScope = true;
                 this.isPrincipal = type !== 'send';
             },
@@ -1028,8 +1131,29 @@
                         this.getList();
                     });
                 } else if (this.title == '收款') {
+                    if (this.detailsForm.paymentType == undefined) {
+                        this.$modal.msgError('请选择对应类型');
+                        return;
+                    }
                     if (this.detailsForm.amount == undefined) {
                         this.$modal.msgError('请输入收款金额');
+                        return;
+                    }
+
+                    const params = {
+                        id: this.detailsForm.id,
+                        amount: this.detailsForm.amount,
+                        paymentType: this.detailsForm.paymentType,
+                        remark: this.detailsForm.remark,
+                    };
+                    API.additionalAmount(params).then(res => {
+                        this.$modal.msgSuccess('收款成功');
+                        this.openDataScope = false;
+                        this.getList();
+                    });
+                } else if (this.title == '退款') {
+                    if (this.detailsForm.amount == undefined) {
+                        this.$modal.msgError('请输入退款金额');
                         return;
                     }
                     const params = {
@@ -1037,8 +1161,8 @@
                         amount: this.detailsForm.amount,
                         remark: this.detailsForm.remark,
                     };
-                    API.additionalAmount(params).then(res => {
-                        this.$modal.msgSuccess('收款成功');
+                    API.refund(params).then(res => {
+                        this.$modal.msgSuccess('退款成功');
                         this.openDataScope = false;
                         this.getList();
                     });
@@ -1141,5 +1265,29 @@
         .el-input__inner {
             text-align: left !important;
         }
+    }
+
+    .lable-wrap {
+        margin-right: 20px;
+        align-items: center;
+        .lable {
+            font-size: 12px;
+            color: #484848;
+            margin-right: 10px;
+        }
+        .value {
+            font-size: 18px;
+            color: #336ad9;
+        }
+    }
+
+    .remark-box {
+        width: 70px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        display: block;
+        font-size: 12px;
+        color: #606266;
     }
 </style>

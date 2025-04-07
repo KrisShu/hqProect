@@ -1,47 +1,86 @@
 <template>
     <div class="app-container">
-        <el-row class="search-box mb20 flex-wrap a-center" v-show="showSearch">
-            <el-col class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
-                <div class="label-box">
-                    <div class="lael-input">单号：</div>
-                </div>
-                <div class="vlue-box">
-                    <el-input
-                        v-model="queryParams.order_number"
-                        placeholder="请输入内容"
-                        clearable
-                        style="width: 240px"
-                    />
-                </div>
-            </el-col>
-            <el-col class="flex-box flex-wrap a-center" :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
-                <div class="label-box">
-                    <div class="lael-input">时间：</div>
-                </div>
-                <div class="vlue-box">
-                    <el-date-picker
-                        value-format="yyyy-MM-dd"
-                        v-model="queryParams.create_time"
-                        type="date"
-                        placeholder="选择日期"
-                    >
-                    </el-date-picker>
-                </div>
-            </el-col>
+        <el-row class="search-box mb20 flex-wrap flex-hh" v-show="showSearch">
+            <el-row class="w100">
+                <el-col class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
+                    <div class="label-box">
+                        <div class="lael-input">单号：</div>
+                    </div>
+                    <div class="vlue-box">
+                        <el-input
+                            v-model="queryParams.order_number"
+                            placeholder="请输入内容"
+                            clearable
+                            style="width: 240px"
+                        />
+                    </div>
+                </el-col>
+                <el-col class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
+                    <div class="label-box">
+                        <div class="lael-input">分类：</div>
+                    </div>
+                    <div class="vlue-box">
+                        <el-select class="w100" v-model="queryParams.paymentType" placeholder="请选择分类" clearable>
+                            <el-option
+                                v-for="(item, index) in paymentTypeList"
+                                :key="index"
+                                :label="item.dictLabel"
+                                :value="item.dictValue"
+                            >
+                            </el-option>
+                        </el-select>
+                    </div>
+                </el-col>
+            </el-row>
 
-            <el-col :xs="12" :sm="12" :md="12" :lg="12" :xl="6">
+            <el-row class="w100">
+                <el-col class="flex-box flex-wrap" :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
+                    <div class="label-box">
+                        <div class="lael-input">日期：</div>
+                    </div>
+                    <div class="vlue-box">
+                        <el-date-picker
+                            v-model="queryParams.time"
+                            type="datetimerange"
+                            range-separator="至"
+                            start-placeholder="开始日期"
+                            end-placeholder="结束日期"
+                            align="right"
+                            value-format="yyyy-MM-dd HH:mm:ss"
+                        >
+                        </el-date-picker>
+                    </div>
+                </el-col>
+            </el-row>
+
+            <el-row class="mt20 flex-wrap search-btn w100">
                 <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
                 <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
-            </el-col>
+            </el-row>
         </el-row>
         <el-row :gutter="10" class="mb8">
             <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
         </el-row>
+        <el-row class="mb8">
+            <div class="flex-wrap">
+                <p class="lable-wrap flex-wrap">
+                    <span class="lable">总计：</span>
+                    <span class="value">{{ totalData || 0 }}元</span>
+                </p>
+            </div>
 
+            <el-divider><i class="el-icon-s-operation"></i></el-divider>
+        </el-row>
         <el-table v-loading="loading" :data="dataList">
             <el-table-column fixed label="单号" prop="orderNumber" />
+            <el-table-column fixed label="分类" prop="paymentType">
+                <template slot-scope="scope">
+                    <span>{{ paymentTypeName(scope.row.paymentType) }}</span>
+                </template>
+            </el-table-column>
+
             <el-table-column label="参与计算的收款" align="center" prop="money" />
-            <el-table-column label="提成比例" align="center" prop="commissionRate" />
+            <!-- <el-table-column label="提成比例" align="center" prop="commissionRate" /> -->
             <el-table-column label="时间" align="center" prop="createTime" />
         </el-table>
         <!-- 分页 -->
@@ -57,6 +96,7 @@
 
 <script>
     import API from '@/api/workPerformanceApi';
+    import { fetchDictType } from '@/api/commApi';
     export default {
         name: 'detailsList',
 
@@ -72,23 +112,49 @@
                     month: this.$route.query.month,
                     type: Number(this.$route.query.type),
                     orderNumber: '',
-                    create_time: '',
+                    time: [],
+                    startTime: undefined,
+                    endTime: undefined,
+                    paymentType: '',
                     pageNum: 1,
                     pageSize: 10,
                 },
+                paymentTypeList: [],
+                totalData: 0,
             };
+        },
+        computed: {
+            paymentTypeName() {
+                return value => {
+                    const item = this.paymentTypeList.find(item => item.dictValue == value);
+                    return item ? item.dictLabel : '';
+                };
+            },
         },
         created() {
             this.getList();
+            this.initPaymentType();
         },
         methods: {
+            initPaymentType() {
+                fetchDictType('payment_type').then(res => {
+                    const result = res.data;
+                    this.paymentTypeList = result.filter(item => item.dictValue != -1);
+                });
+            },
             handleQuery() {
                 this.queryParams.pageNum = 1;
+
+                this.queryParams.startTime = this.queryParams.time[0] || undefined;
+                this.queryParams.endTime = this.queryParams.time[1] || undefined;
                 this.getList();
             },
             resetQuery() {
                 this.queryParams.orderNumber = '';
-                this.queryParams.create_time = '';
+                this.queryParams.time = [];
+                this.queryParams.startTime = undefined;
+                this.queryParams.endTime = undefined;
+                this.queryParams.paymentType = undefined;
                 this.queryParams.pageNum = 1;
                 this.queryParams.pageSize = 10;
                 this.getList();

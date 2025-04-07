@@ -170,7 +170,13 @@
             <el-table-column fixed label="单号" prop="orderNumber" width="120" />
             <el-table-column label="客户概况" align="center" prop="customerProfiling" width="200" />
             <el-table-column label="项目概况" align="center" prop="projectSummaryLable" width="200" />
-
+            <el-table-column label="备注" align="center" prop="remark">
+                <template slot-scope="scope">
+                    <el-tooltip class="item" effect="dark" :content="scope.row.remark" placement="top-start">
+                        <span class="remark-box">{{ scope.row.remark }}</span>
+                    </el-tooltip>
+                </template>
+            </el-table-column>
             <el-table-column label="状态" align="center" width="100">
                 <template slot-scope="scope">
                     <el-tag :type="orderStateType(scope.row.orderState)">
