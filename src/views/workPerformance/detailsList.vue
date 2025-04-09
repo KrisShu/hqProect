@@ -65,7 +65,7 @@
             <div class="flex-wrap">
                 <p class="lable-wrap flex-wrap">
                     <span class="lable">总计：</span>
-                    <span class="value">{{ totalData || 0 }}元</span>
+                    <span class="value">{{ totalData.money || 0 }}元</span>
                 </p>
             </div>
 
@@ -120,7 +120,9 @@
                     pageSize: 10,
                 },
                 paymentTypeList: [],
-                totalData: 0,
+                totalData: {
+                    money: 0,
+                },
             };
         },
         computed: {
@@ -161,14 +163,34 @@
             },
             getList() {
                 this.loading = true;
+                this.getTotal();
                 API.fetchDetail(this.queryParams).then(res => {
                     this.dataList = res.rows;
                     this.total = res.total;
                     this.loading = false;
                 });
             },
+            getTotal() {
+                API.fetchDetailTotal(this.queryParams).then(res => {
+                    this.totalData = res?.data || { money: 0 };
+                });
+            },
         },
     };
 </script>
 
-<style></style>
+<style lang="scss">
+    .lable-wrap {
+        margin-right: 20px;
+        align-items: center;
+        .lable {
+            font-size: 12px;
+            color: #484848;
+            margin-right: 10px;
+        }
+        .value {
+            font-size: 18px;
+            color: #336ad9;
+        }
+    }
+</style>

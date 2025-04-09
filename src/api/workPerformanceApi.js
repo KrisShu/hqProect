@@ -34,6 +34,14 @@ export function fetchDetail(data) {
     });
 }
 
+export function fetchDetailTotal(data) {
+    return request({
+        url: '/system/list/listTotal',
+        method: 'post',
+        data,
+    });
+}
+
 // 获取列表
 export function fetchRulesList(data) {
     return request({
@@ -57,4 +65,5 @@ export default {
     fetchDetail,
     fetchRulesList,
     editRules,
+    fetchDetailTotal,
 };
