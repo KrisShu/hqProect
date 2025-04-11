@@ -188,7 +188,7 @@
             <el-table-column label="交付日期" align="center" prop="releasedTime" width="100" />
             <el-table-column label="接单微信" align="center" prop="sourceWx" width="150" />
             <el-table-column label="业务员" prop="salemanUserName" />
-            <el-table-column label="负责人" prop="principalUserId" />
+            <el-table-column label="负责人" prop="principalUserName" />
             <el-table-column label="创建日期" align="center" prop="createTime" width="100" />
 
             <el-table-column

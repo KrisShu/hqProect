@@ -209,6 +209,8 @@
             <el-table-column fixed label="单号" prop="orderNumber" width="120" />
             <el-table-column label="客户概况" align="center" prop="customerProfiling" width="250" />
             <el-table-column label="项目概况" align="center" prop="projectSummaryLable" width="250" />
+            <el-table-column label="交单项目概况" align="center" prop="jdprojectSummaryLable" width="250" />
+
             <el-table-column label="备注" align="center" prop="remark">
                 <template slot-scope="scope">
                     <el-tooltip class="item" effect="dark" :content="scope.row.remark" placement="top-start">
@@ -275,7 +277,7 @@
                     </el-button>
                     <el-button
                         v-show="scope.row.orderState == 2"
-                        v-hasPermi="['customer:CustomerList:delete']"
+                        v-hasPermi="['customer:CustomerList:remove']"
                         size="mini"
                         type="text"
                         icon="el-icon-delete"
@@ -388,6 +390,23 @@
                         </el-option>
                     </el-select>
                 </el-form-item>
+                <el-form-item label="交单项目" prop="jdprojectSummaryDictCode">
+                    <el-select
+                        v-model="customerForm.jdprojectSummaryDictCode"
+                        placeholder="请选择对应的交单项目概况"
+                        clearable
+                        class="w100"
+                    >
+                        <el-option
+                            v-for="item in $store.getters.jdprojectSummaryList"
+                            :key="item.dictValue"
+                            :label="item.dictLabel"
+                            :value="item.dictValue"
+                        >
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+
                 <el-form-item label="客户微信" prop="customerWx">
                     <el-input v-model="customerForm.customerWx" placeholder="请输入客户微信" />
                 </el-form-item>
@@ -402,9 +421,9 @@
                         :max="50000"
                     ></el-input-number>
                 </el-form-item>
-                <el-form-item v-show="title == '编辑客户'" label="已付款" prop="paidAmount">
+                <el-form-item label="已付款" prop="paidAmount">
                     <el-input-number
-                        :disabled="true"
+                        :disabled="title == '编辑客户'"
                         class="w100 input-number"
                         v-model="customerForm.paidAmount"
                         controls-position="right"
@@ -433,7 +452,9 @@
                         type="datetime"
                         placeholder="选择日期时间"
                         align="right"
+                        disabled
                         value-format="yyyy-MM-dd HH:mm:ss"
+                        format="yyyy-MM-dd HH:mm:ss"
                         :picker-options="pickerOptions"
                     >
                     </el-date-picker>
@@ -460,6 +481,7 @@
                         v-model="customerForm.salesmanUserId"
                         placeholder="请选择对应的业务员"
                         clearable
+                        :disabled="currSalesmanUserId ? true : false"
                     >
                         <el-option
                             v-for="(item, index) in $store.getters.salesmanUserList"
@@ -668,6 +690,7 @@
     import API from '@/api/customerApi';
     import { orderSateMeta, metaToOptions } from '@/utils/meta';
     import { fetchprincipalUserList, fetchDictType } from '@/api/commApi';
+    import { formatDate } from '@/utils/index';
 
     export default {
         name: 'customerList',
@@ -710,6 +733,7 @@
                     orderNumber: undefined, //单号
                     customerProfiling: undefined, //客户概况
                     projectSummaryDictCode: undefined, //项目概况
+
                     orderState: undefined, //状态
                     startOrderTime: undefined, //下单日期
                     endOrderTime: undefined, //下单日期
@@ -726,6 +750,9 @@
                     customerProfiling: undefined, //客户概况
                     projectSummaryDictCode: undefined, //项目概况
                     projectSummaryLable: undefined, //项目概况
+
+                    jdprojectSummaryDictCode: undefined, //交单项目
+                    jdprojectSummaryLable: undefined, //项目概况
                     customerWx: undefined, //客户微信
                     totalAmount: undefined, //交易金额
                     paidAmount: undefined, //已付款
@@ -736,9 +763,11 @@
                     salesmanUserId: undefined, //业务员
                     remark: undefined, //备注
                 }, //客户数据
+                currSalesmanUserId: undefined, //当前登录的业务员ID
                 customerFormRules: {
                     customerProfiling: [{ required: true, message: '客户概况不能为空', trigger: 'blur' }],
                     projectSummaryDictCode: [{ required: true, message: '请选择对应的项目概况', trigger: 'change' }],
+                    jdprojectSummaryDictCode: [{ required: true, message: '请选择对应的概况', trigger: 'change' }],
 
                     totalAmount: [{ required: true, message: '请输入交易金额', trigger: 'blur' }],
 
@@ -953,6 +982,11 @@
 
                 this.customerForm.salesmanUserId =
                     this.$store.getters.salesmanUserList.find(item => item.userId == currid)?.userId ?? undefined;
+
+                this.currSalesmanUserId =
+                    this.$store.getters.salesmanUserList.find(item => item.userId == currid)?.userId ?? undefined;
+
+                this.customerForm.orderTime = formatDate(new Date());
                 this.open = true;
                 this.title = '添加客户';
             },
@@ -1088,6 +1122,10 @@
                             this.customerForm.projectSummaryLable = this.$store.getters.projectSummaryList.find(
                                 item => item.dictValue == this.customerForm.projectSummaryDictCode,
                             ).dictLabel;
+                            this.customerForm.jdprojectSummaryLable = this.$store.getters.jdprojectSummaryList.find(
+                                item => item.dictValue == this.customerForm.jdprojectSummaryDictCode,
+                            ).dictLabel;
+
                             API.addOrder(this.customerForm).then(res => {
                                 this.$modal.msgSuccess('新增成功');
                                 this.open = false;

@@ -18,6 +18,7 @@ const getters = {
     salesmanUserList: state => state.user.salesmanUserList,
     principalUserList: state => state.user.principalUserList,
     projectSummaryList: state => state.user.projectSummaryList,
+    jdprojectSummaryList: state => state.user.jdprojectSummaryList,
     // statusOptions: state => state.user.statusOptions,
 };
 export default getters;

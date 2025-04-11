@@ -15,6 +15,7 @@ const user = {
         salesmanUserList: [], // 业务员元数据
         principalUserList: [], // 负责人元数据
         projectSummaryList: [], // 项目状态元数据
+        jdprojectSummaryList: [], // 交单项目状态元数据
     },
 
     mutations: {
@@ -47,6 +48,9 @@ const user = {
         },
         SET_PROJECT_SUMMARY_LIST: (state, projectSummaryList) => {
             state.projectSummaryList = projectSummaryList;
+        },
+        SET_JDPROJECT_SUMMARY_LIST: (state, jdprojectSummaryList) => {
+            state.jdprojectSummaryList = jdprojectSummaryList;
         },
     },
 
@@ -105,12 +109,15 @@ const user = {
                     fetchsalesmanUserList({ keyWord: undefined }),
                     fetchprincipalUserList({ keyWord: undefined }),
                     fetchDictType('project_summary'),
+                    fetchDictType('jdproject_summary'),
                 ])
-                    .then(([salesmanUserList, principalUserList, projectSummaryList]) => {
+                    .then(([salesmanUserList, principalUserList, projectSummaryList, jdprojectSummaryList]) => {
                         // console.log('salesmanUserList----------------', salesmanUserList);
                         commit('SET_SALESMAN_USER_LIST', salesmanUserList.rows);
                         commit('SET_PRINCIPAL_USER_LIST', principalUserList.rows);
                         commit('SET_PROJECT_SUMMARY_LIST', projectSummaryList.data);
+                        commit('SET_JDPROJECT_SUMMARY_LIST', jdprojectSummaryList.data);
+
                         resolve();
                     })
                     .catch(error => {

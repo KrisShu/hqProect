@@ -205,7 +205,7 @@
             </el-table-column>
             <el-table-column label="接单微信" prop="sourceWx" />
             <el-table-column label="业务员" prop="salemanUserName" />
-            <el-table-column label="负责人" prop="principalUserId" />
+            <el-table-column label="负责人" prop="principalUserName" />
             <el-table-column label="创建日期" prop="createTime" />
 
             <el-table-column

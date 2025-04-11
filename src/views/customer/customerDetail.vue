@@ -35,6 +35,10 @@
                             <div class="vlue-box">{{ baseDetail.projectSummaryLable }}</div>
                         </div>
                         <div class="flex-wrap lable-item">
+                            <div class="label-box">交单项目概况：</div>
+                            <div class="vlue-box">{{ baseDetail.jdprojectSummaryLable }}</div>
+                        </div>
+                        <div class="flex-wrap lable-item">
                             <div class="label-box">客户微信：</div>
                             <div class="vlue-box">{{ baseDetail.customerWx }}</div>
                         </div>
