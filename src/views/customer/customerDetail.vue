@@ -35,7 +35,7 @@
                             <div class="vlue-box">{{ baseDetail.projectSummaryLable }}</div>
                         </div>
                         <div class="flex-wrap lable-item">
-                            <div class="label-box">交单项目概况：</div>
+                            <div class="label-box">交单概况：</div>
                             <div class="vlue-box">{{ baseDetail.jdprojectSummaryLable }}</div>
                         </div>
                         <div class="flex-wrap lable-item">
@@ -45,18 +45,14 @@
                         <div class="flex-wrap lable-item" v-if="type === 'customer'">
                             <div class="label-box">交易金额：</div>
                             <div class="vlue-box">
-                                <el-link type="primary">{{ baseDetail.totalAmount.toFixed(2) }}</el-link>
+                                <el-link type="primary">{{ baseDetail.totalAmount }}</el-link>
                             </div>
                         </div>
                         <div class="flex-wrap lable-item" v-if="type === 'customer'">
                             <div class="label-box"></div>
                             <div class="vlue-box flex-wrap">
-                                <el-link type="success" class="mr10"
-                                    >已付款：{{ baseDetail.paidAmount.toFixed(2) }}</el-link
-                                >
-                                <el-link type="danger"
-                                    >未付款：{{ (baseDetail.totalAmount - baseDetail.paidAmount).toFixed(2) }}</el-link
-                                >
+                                <el-link type="success" class="mr10">已付款：{{ baseDetail.paidAmount }}</el-link>
+                                <el-link type="danger">未付款：{{ baseDetail.nonPayment }}</el-link>
                             </div>
                         </div>
 

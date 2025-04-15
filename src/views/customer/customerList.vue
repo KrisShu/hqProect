@@ -429,10 +429,10 @@
                         :max="50000"
                     ></el-input-number>
                 </el-form-item>
-                <el-form-item v-show="title == '编辑客户'" label="未付款" prop="finalPayment">
+                <el-form-item v-show="title == '编辑客户'" label="未付款" prop="nonPayment">
                     <el-input-number
                         class="w100 input-number"
-                        :value="finalPayment"
+                        :value="customerForm.nonPayment"
                         controls-position="right"
                         :precision="2"
                         :step="1"
@@ -998,8 +998,9 @@
             handleOrder(type, row) {
                 this.initprincipalUserList();
                 this.detailsForm = Object.assign({}, row, {
-                    totalAmount: row.totalAmount?.toFixed(2),
-                    paidAmount: row.paidAmount?.toFixed(2) || 0,
+                    totalAmount: row.totalAmount,
+                    paidAmount: row.paidAmount || 0,
+                    nonPayment: row.nonPayment || 0,
                     principalUserId: row.principalUserId
                         ? row.principalUserId
                         : type == 'send'
@@ -1009,7 +1010,7 @@
                     remark: undefined,
                     amount: undefined,
                 });
-                this.amountMax = row.totalAmount;
+                this.amountMax = Number(row.totalAmount);
 
                 // this.title = type == 'finish' ? '结单' : type == 'send' ? '派单' : '收款';
 
