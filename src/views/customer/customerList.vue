@@ -228,11 +228,7 @@
             </el-table-column>
             <el-table-column label="交易金额" align="center" prop="totalAmount" width="120" />
             <el-table-column label="已付款" align="center" prop="paidAmount" width="120" />
-            <el-table-column label="未付款" align="center" prop="roleId" width="120">
-                <template slot-scope="scope">
-                    {{ (scope.row.totalAmount - scope.row.paidAmount).toFixed(2) }}
-                </template>
-            </el-table-column>
+            <el-table-column label="未付款" align="center" prop="nonPayment" width="120"> </el-table-column>
             <el-table-column sortable label="下单日期" align="center" prop="orderTime" width="150" />
             <el-table-column sortable label="交付日期" align="center" prop="releasedTime" width="150" />
             <el-table-column label="接单微信" prop="sourceWx" />
@@ -541,7 +537,7 @@
                     <div class="label-box"></div>
                     <div class="vlue-box flex-wrap">
                         <el-link type="success" class="mr10">已付款：{{ detailsForm.paidAmount }}</el-link>
-                        <el-link type="danger">未付款：{{ finalPayment_detailsForm }}</el-link>
+                        <el-link type="danger">未付款：{{ detailsForm.nonPayment }}</el-link>
                     </div>
                 </div>
 
