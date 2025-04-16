@@ -6,7 +6,11 @@
                 <h4><i class="el-icon-pie-chart"></i>统计看板</h4>
             </el-row>
             <el-col v-for="(item, index) in dataBoard" :key="index" :xs="8" :sm="6" :md="4" :lg="4" :xl="4">
-                <div class="data-board-item flex-wrap flex-vertical a-center j-center" :class="item.class">
+                <div
+                    @click="handleEvent(item)"
+                    class="data-board-item flex-wrap flex-vertical a-center j-center"
+                    :class="item.class"
+                >
                     <p class="value">{{ item.v }}</p>
                     <p class="title">{{ item.n }}</p>
                 </div>
@@ -148,6 +152,20 @@
             this.fetchCustomerStatistics();
         },
         methods: {
+            handleEvent(item) {
+                if (!item.isClick) {
+                    return;
+                }
+                const jsonData = JSON.parse(item.paramJson);
+                this.$router.push({
+                    path: '/workPerformance/detailsList',
+                    query: {
+                        year: jsonData.year,
+                        month: jsonData.month,
+                        type: jsonData.type,
+                    },
+                });
+            },
             //
 
             fetchDashboardStatistics() {

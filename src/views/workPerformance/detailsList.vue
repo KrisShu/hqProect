@@ -107,7 +107,7 @@
                 dataList: [],
                 total: 0,
                 queryParams: {
-                    userId: Number(this.$route.query.userId),
+                    userId: this.$route.query?.userId ? Number(this.$route.query.userId) : undefined,
                     year: this.$route.query.year,
                     month: this.$route.query.month,
                     type: Number(this.$route.query.type),
