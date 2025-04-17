@@ -41,10 +41,10 @@
             <!-- <el-table-column type="selection" width="55" align="center" /> -->
             <!-- <el-table-column fixed label="ID" prop="id" width="120" /> -->
             <el-table-column label="姓名" align="center" prop="userName" />
-            <el-table-column label="负责的客户" align="center" prop="num">
+            <el-table-column label="数量" align="center" prop="num">
                 <template slot="header" slot-scope="scope">
                     <el-tooltip class="item" effect="dark" content="都以本月结单了的客户计算" placement="top-start">
-                        <span>负责的客户<i class="el-icon-question"></i></span>
+                        <span>数量<i class="el-icon-question"></i></span>
                     </el-tooltip>
                 </template>
 

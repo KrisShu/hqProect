@@ -125,6 +125,26 @@
                         </el-select>
                     </div>
                 </el-col>
+                <el-col class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
+                    <div class="label-box">
+                        <div class="lael-input">交单项目：</div>
+                    </div>
+                    <div class="vlue-box">
+                        <el-select
+                            v-model="queryParams.jdprojectSummaryDictCode"
+                            placeholder="请选择项目概况"
+                            style="width: 240px"
+                        >
+                            <el-option
+                                v-for="item in $store.getters.jdprojectSummaryList"
+                                :key="item.dictValue"
+                                :label="item.dictLabel"
+                                :value="item.dictValue"
+                            >
+                            </el-option>
+                        </el-select>
+                    </div>
+                </el-col>
             </el-row>
             <el-row class="w100">
                 <el-col class="flex-box flex-wrap" :xs="24" :sm="24" :md="24" :lg="12" :xl="12">
@@ -185,7 +205,7 @@
             <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
         </el-row>
         <!-- 总计 -->
-        <el-row class="mb8">
+        <el-row class="mb8" v-hasPermi="['customer:CustomerList:total']">
             <div class="flex-wrap">
                 <p class="lable-wrap flex-wrap">
                     <span class="lable">交易金额：</span>
@@ -426,7 +446,7 @@
                         :precision="2"
                         :step="1"
                         :min="0"
-                        :max="50000"
+                        :max="customerForm.totalAmount"
                     ></el-input-number>
                 </el-form-item>
                 <el-form-item v-show="title == '编辑客户'" label="未付款" prop="nonPayment">
@@ -729,7 +749,7 @@
                     orderNumber: undefined, //单号
                     customerProfiling: undefined, //客户概况
                     projectSummaryDictCode: undefined, //项目概况
-
+                    jdprojectSummaryDictCode: undefined, //交单项目
                     orderState: undefined, //状态
                     startOrderTime: undefined, //下单日期
                     endOrderTime: undefined, //下单日期

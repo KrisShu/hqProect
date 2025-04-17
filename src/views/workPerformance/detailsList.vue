@@ -15,7 +15,7 @@
                         />
                     </div>
                 </el-col>
-                <el-col class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
+                <!-- <el-col class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
                     <div class="label-box">
                         <div class="lael-input">分类：</div>
                     </div>
@@ -29,6 +29,19 @@
                             >
                             </el-option>
                         </el-select>
+                    </div>
+                </el-col> -->
+                <el-col v-show="curruserId" class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
+                    <div class="label-box">
+                        <div class="lael-input">名字：</div>
+                    </div>
+                    <div class="vlue-box">
+                        <el-input
+                            v-model="queryParams.userName"
+                            placeholder="请输入内容"
+                            clearable
+                            style="width: 240px"
+                        />
                     </div>
                 </el-col>
             </el-row>
@@ -73,12 +86,13 @@
         </el-row>
         <el-table v-loading="loading" :data="dataList">
             <el-table-column fixed label="单号" prop="orderNumber" />
-            <el-table-column fixed label="分类" prop="paymentType">
+            <!-- <el-table-column fixed label="分类" prop="paymentType">
                 <template slot-scope="scope">
                     <span>{{ paymentTypeName(scope.row.paymentType) }}</span>
                 </template>
-            </el-table-column>
+            </el-table-column> -->
 
+            <el-table-column v-show="curruserId" label="名字" align="center" prop="userName" />
             <el-table-column label="参与计算的收款" align="center" prop="money" />
             <!-- <el-table-column label="提成比例" align="center" prop="commissionRate" /> -->
             <el-table-column label="时间" align="center" prop="createTime" />
@@ -102,6 +116,7 @@
 
         data() {
             return {
+                curruserId: undefined,
                 showSearch: true,
                 loading: false,
                 dataList: [],
@@ -112,6 +127,7 @@
                     month: this.$route.query.month,
                     type: Number(this.$route.query.type),
                     orderNumber: '',
+                    userName: '',
                     time: [],
                     startTime: undefined,
                     endTime: undefined,
@@ -134,6 +150,7 @@
             },
         },
         created() {
+            this.curruserId = this.$route.query?.userId ? Number(this.$route.query.userId) : undefined;
             this.getList();
             this.initPaymentType();
         },

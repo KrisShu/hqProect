@@ -15,7 +15,7 @@
                         />
                     </div>
                 </el-col>
-                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
+                <!-- <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
                     <div class="label-box">
                         <div class="lael-input">接单微信号：</div>
                     </div>
@@ -27,7 +27,7 @@
                             style="width: 240px"
                         />
                     </div>
-                </el-col>
+                </el-col> -->
                 <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
                     <div class="label-box">
                         <div class="lael-input">客户概况：</div>
@@ -43,7 +43,7 @@
                 </el-col>
             </el-row>
             <el-row class="w100">
-                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
+                <!-- <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
                     <div class="label-box">
                         <div class="lael-input">业务员：</div>
                     </div>
@@ -60,6 +60,27 @@
                                 :label="dict.userName"
                                 :value="dict.userId"
                             />
+                        </el-select>
+                    </div>
+                </el-col> -->
+                <el-col class="flex-box flex-wrap" :xs="12" :sm="12" :md="12" :lg="8" :xl="6">
+                    <div class="label-box">
+                        <div class="lael-input">交单概况：</div>
+                    </div>
+                    <div class="vlue-box">
+                        <el-select
+                            v-model="queryParams.jdprojectSummaryDictCode"
+                            placeholder="请选择对应的交单项目概况"
+                            clearable
+                            class="w100"
+                        >
+                            <el-option
+                                v-for="item in $store.getters.jdprojectSummaryList"
+                                :key="item.dictValue"
+                                :label="item.dictLabel"
+                                :value="item.dictValue"
+                            >
+                            </el-option>
                         </el-select>
                     </div>
                 </el-col>
@@ -170,6 +191,7 @@
             <el-table-column fixed label="单号" prop="orderNumber" width="120" />
             <el-table-column label="客户概况" align="center" prop="customerProfiling" width="200" />
             <el-table-column label="项目概况" align="center" prop="projectSummaryLable" width="200" />
+            <el-table-column label="交单项目概况" align="center" prop="jdprojectSummaryLable" width="250" />
             <el-table-column label="备注" align="center" prop="remark">
                 <template slot-scope="scope">
                     <el-tooltip class="item" effect="dark" :content="scope.row.remark" placement="top-start">
@@ -243,10 +265,6 @@
                 queryParams: {
                     pageNum: 1,
                     pageSize: 10,
-                    option1: 'orderNumber',
-                    value1: undefined,
-                    option3: 'OrderTime',
-                    value3: [],
 
                     orderState: orderSateMeta.Completedorder.value, //已完成
                     orderNumber: undefined, //单号
@@ -262,6 +280,7 @@
                     ReleasedTime: [], //交付日期
                     sourceWx: undefined, //接单微信号
                     salesmanUserId: undefined, //业务员
+                    jdprojectSummaryDictCode: undefined, //交单项目概况
                 },
             };
         },
@@ -374,7 +393,7 @@
             },
             handleDetail(row) {
                 this.$router.push({
-                    path: '/customer/CustomerDetail',
+                    path: '/myCustomer/CustomerDetail',
                     query: {
                         details: JSON.stringify(row),
                         type: 'myCustomer',
