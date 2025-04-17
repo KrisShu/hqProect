@@ -16,7 +16,7 @@
                     </div>
                 </el-col>
                 <el-col
-                    v-show="queryParams.type == 2 && queryParams.pageType != 'index'"
+                    v-show="queryParams.type == 2"
                     class="flex-box flex-wrap"
                     :xs="24"
                     :sm="24"
@@ -28,7 +28,13 @@
                         <div class="lael-input">分类：</div>
                     </div>
                     <div class="vlue-box">
-                        <el-select class="w100" v-model="queryParams.paymentType" placeholder="请选择分类" clearable>
+                        <el-select
+                            class="w100"
+                            :disabled="queryParams.pageType == 'index'"
+                            v-model="queryParams.paymentType"
+                            placeholder="请选择分类"
+                            clearable
+                        >
                             <el-option
                                 v-for="(item, index) in paymentTypeList"
                                 :key="index"
@@ -94,13 +100,13 @@
         </el-row>
         <el-table v-loading="loading" :data="dataList">
             <el-table-column fixed label="单号" prop="orderNumber" />
-            <el-table-column v-show="queryParams.type == 2" label="分类" prop="paymentType">
+            <el-table-column v-if="queryParams.type == 2" label="分类" prop="paymentType">
                 <template slot-scope="scope">
                     <span>{{ paymentTypeName(scope.row.paymentType) }}</span>
                 </template>
             </el-table-column>
 
-            <el-table-column v-show="curruserId" label="名字" align="center" prop="userName" />
+            <el-table-column v-if="curruserId" label="名字" align="center" prop="userName" />
             <el-table-column label="参与计算的收款" align="center" prop="money" />
             <!-- <el-table-column label="提成比例" align="center" prop="commissionRate" /> -->
             <el-table-column label="时间" align="center" prop="createTime" />
@@ -169,7 +175,11 @@
             initPaymentType() {
                 fetchDictType('payment_type').then(res => {
                     const result = res.data;
-                    this.paymentTypeList = result.filter(item => item.dictValue != -1);
+                    if (this.queryParams.pageType == 'index') {
+                        this.paymentTypeList = result;
+                    } else {
+                        this.paymentTypeList = result.filter(item => item.dictValue != -1);
+                    }
                 });
             },
             handleQuery() {
