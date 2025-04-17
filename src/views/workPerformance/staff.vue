@@ -42,11 +42,11 @@
             <!-- <el-table-column fixed label="ID" prop="id" width="120" /> -->
             <el-table-column label="姓名" align="center" prop="userName" />
             <el-table-column label="数量" align="center" prop="num">
-                <template slot="header" slot-scope="scope">
+                <!-- <template slot="header" slot-scope="scope">
                     <el-tooltip class="item" effect="dark" content="都以本月结单了的客户计算" placement="top-start">
                         <span>数量<i class="el-icon-question"></i></span>
                     </el-tooltip>
-                </template>
+                </template> -->
 
                 <template slot-scope="scope">
                     <el-link @click="handelDetails(scope.row)" type="primary" icon="el-icon-user">

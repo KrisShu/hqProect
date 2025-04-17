@@ -31,7 +31,7 @@
                         </el-select>
                     </div>
                 </el-col> -->
-                <el-col v-show="curruserId" class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
+                <el-col v-show="!curruserId" class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
                     <div class="label-box">
                         <div class="lael-input">名字：</div>
                     </div>
@@ -122,6 +122,8 @@
                 dataList: [],
                 total: 0,
                 queryParams: {
+                    paymentType: this.$route.query?.paymentType || undefined,
+                    day: this.$route.query?.day || undefined,
                     userId: this.$route.query?.userId ? Number(this.$route.query.userId) : undefined,
                     year: this.$route.query.year,
                     month: this.$route.query.month,
@@ -131,11 +133,12 @@
                     time: [],
                     startTime: undefined,
                     endTime: undefined,
-                    paymentType: '',
+                    // paymentType: '',
                     pageNum: 1,
                     pageSize: 10,
+                    pageType: this.$route.query?.pageType || undefined,
                 },
-                paymentTypeList: [],
+                // paymentTypeList: [],
                 totalData: {
                     money: 0,
                 },
@@ -152,7 +155,7 @@
         created() {
             this.curruserId = this.$route.query?.userId ? Number(this.$route.query.userId) : undefined;
             this.getList();
-            this.initPaymentType();
+            // this.initPaymentType();
         },
         methods: {
             initPaymentType() {

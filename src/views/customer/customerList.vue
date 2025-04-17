@@ -932,7 +932,7 @@
                 });
             },
             getList() {
-                this.getTotal();
+                this.$auth.hasPermi(['customer:customerOrder:list']) && this.getTotal();
                 this.loading = true;
                 API.fetchList(this.queryParams).then(res => {
                     this.customerOrderList = res.rows;

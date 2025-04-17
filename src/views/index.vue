@@ -1,7 +1,7 @@
 <template>
     <div class="app-container home">
         <!-- 统计看板 -->
-        <el-row :gutter="20" v-hasRole="['admin', 'manager', 'salesmanManager', 'writerManager']">
+        <el-row :gutter="20" v-hasRole="['admin', 'manager']">
             <el-row :span="24">
                 <h4><i class="el-icon-pie-chart"></i>统计看板</h4>
             </el-row>
@@ -17,7 +17,7 @@
             </el-col>
         </el-row>
         <!-- 每月收益 -->
-        <el-row :gutter="20" v-hasRole="['admin', 'manager', 'salesmanManager', 'writerManager']">
+        <el-row :gutter="20" v-hasRole="['admin', 'manager']">
             <el-row :span="24">
                 <h4><i class="el-icon-data-line"></i>每月收益</h4>
             </el-row>
@@ -163,6 +163,9 @@
                         year: jsonData.year,
                         month: jsonData.month,
                         type: jsonData.type,
+                        paymentType: jsonData.paymentType,
+                        day: jsonData?.day || undefined,
+                        pageType: 'index',
                     },
                 });
             },
