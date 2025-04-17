@@ -45,7 +45,15 @@
                         </el-select>
                     </div>
                 </el-col>
-                <el-col v-show="!curruserId" class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
+                <el-col
+                    v-if="queryParams.type == 2"
+                    class="flex-box flex-wrap"
+                    :xs="24"
+                    :sm="24"
+                    :md="12"
+                    :lg="8"
+                    :xl="6"
+                >
                     <div class="label-box">
                         <div class="lael-input">名字：</div>
                     </div>
@@ -106,7 +114,7 @@
                 </template>
             </el-table-column>
 
-            <el-table-column v-if="curruserId" label="名字" align="center" prop="userName" />
+            <el-table-column v-if="queryParams.type == 2" label="名字" align="center" prop="userName" />
             <el-table-column label="参与计算的收款" align="center" prop="money" />
             <!-- <el-table-column label="提成比例" align="center" prop="commissionRate" /> -->
             <el-table-column label="时间" align="center" prop="createTime" />
