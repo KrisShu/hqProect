@@ -15,7 +15,15 @@
                         />
                     </div>
                 </el-col>
-                <!-- <el-col class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
+                <el-col
+                    v-show="queryParams.type == 2 && queryParams.pageType != 'index'"
+                    class="flex-box flex-wrap"
+                    :xs="24"
+                    :sm="24"
+                    :md="12"
+                    :lg="8"
+                    :xl="6"
+                >
                     <div class="label-box">
                         <div class="lael-input">分类：</div>
                     </div>
@@ -30,7 +38,7 @@
                             </el-option>
                         </el-select>
                     </div>
-                </el-col> -->
+                </el-col>
                 <el-col v-show="!curruserId" class="flex-box flex-wrap" :xs="24" :sm="24" :md="12" :lg="8" :xl="6">
                     <div class="label-box">
                         <div class="lael-input">名字：</div>
@@ -86,11 +94,11 @@
         </el-row>
         <el-table v-loading="loading" :data="dataList">
             <el-table-column fixed label="单号" prop="orderNumber" />
-            <!-- <el-table-column fixed label="分类" prop="paymentType">
+            <el-table-column v-show="queryParams.type == 2" label="分类" prop="paymentType">
                 <template slot-scope="scope">
                     <span>{{ paymentTypeName(scope.row.paymentType) }}</span>
                 </template>
-            </el-table-column> -->
+            </el-table-column>
 
             <el-table-column v-show="curruserId" label="名字" align="center" prop="userName" />
             <el-table-column label="参与计算的收款" align="center" prop="money" />
@@ -138,7 +146,7 @@
                     pageSize: 10,
                     pageType: this.$route.query?.pageType || undefined,
                 },
-                // paymentTypeList: [],
+                paymentTypeList: [],
                 totalData: {
                     money: 0,
                 },
@@ -155,7 +163,7 @@
         created() {
             this.curruserId = this.$route.query?.userId ? Number(this.$route.query.userId) : undefined;
             this.getList();
-            // this.initPaymentType();
+            this.initPaymentType();
         },
         methods: {
             initPaymentType() {
